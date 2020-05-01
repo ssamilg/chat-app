@@ -20,7 +20,7 @@ export default {
   },
   methods: {
     getMessage() {
-      this.socket.on('chat message', (data) => {
+      this.socket.on('message', (data) => {
         this.messages.push(data.message);
       });
     },
