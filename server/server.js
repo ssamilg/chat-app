@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", function (socket) {
-  console.log("a user connected");
+  console.log("A user connected");
 
   socket.on("message", function (msg) {
     io.emit("message", {
@@ -18,7 +18,7 @@ io.on("connection", function (socket) {
     });
   });
   socket.on("disconnect", function () {
-    console.log("user disconnected");
+    console.log("A user disconnected");
   });
 });
 
