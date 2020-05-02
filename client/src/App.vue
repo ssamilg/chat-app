@@ -12,9 +12,5 @@ export default {
 </script>
 
 <template>
-  <v-row>
-    <v-col>
-      <home/>
-    </v-col>
-  </v-row>
+  <home/>
 </template>
