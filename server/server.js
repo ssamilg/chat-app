@@ -18,7 +18,7 @@ io.on("connection", (socket) => {
 
 //New User joined
   socket.on("newUser", (username) => {
-    console.log(`${socket.user} connected.`);
+    console.log(`${username} connected.`);
     socket.username = username;
     users.push(socket);
 
@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 
   //Disconnect
   socket.on("disconnect", () => {
-    console.log(`${socket.user} disconnected.`);
+    console.log(`${socket.username} disconnected.`);
     io.emit('userLeft', socket.username);
     users.splice(users.indexOf(socket), 1);
   });
