@@ -51,6 +51,6 @@ io.on("connection", (socket) => {
 });
 
 const port = 8000;
-server.listen(port, () => {
+http.listen(port, () => {
   console.log("Server is listening on:" + port + " now...");
 });
