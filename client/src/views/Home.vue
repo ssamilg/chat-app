@@ -14,11 +14,13 @@ export default {
       messages: [],
       users: [],
       drawer: false,
+      welcomeDialog: true,
     };
   },
   computed: {
   },
   mounted() {
+    if (this.username === '') this.welcomeDialog = true;
     this.getMessage();
   },
   methods: {
@@ -32,11 +34,11 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="body">
     <v-layout>
       <v-flex>
         <v-toolbar
-          color="primary"
+          class="main-toolbar"
           dark
           extended
           flat
@@ -48,25 +50,36 @@ export default {
     </v-layout>
 
     <v-layout>
-      <v-spacer/>
+      <v-flex md2>
+        <v-layout>
+          <v-spacer/>
+          <v-flex md6>
+            <v-icon size="180">account_circle</v-icon>
+          </v-flex>
+          <v-spacer/>
+        </v-layout>
+        <v-layout>
+          <v-spacer/>
+          <v-flex md6>
+            <strong>Username: {{ username }}</strong>
+          </v-flex>
+          <v-spacer/>
+        </v-layout>
+      </v-flex>
       <v-flex md8>
         <v-card
           style="margin-top: -64px;"
         >
-          <v-toolbar flat>
-            <v-layout>
-              <v-flex md4>
-                <v-list dense two-line>
-                  <v-list-tile>
-                    <v-list-tile-title>
-                      <v-toolbar-title class="grey--text">Room Test</v-toolbar-title>
-                    </v-list-tile-title>
+          <v-toolbar flat class="chat-toolbar">
+            <v-layout style="margin-top:8px;">
+                <v-flex md4>
+                  <v-layout style="font-size:24px;">
+                    <strong>Room Test</strong>
+                  </v-layout>
 
-                    <v-list-tile-subtitle>
-                      Online: {{ users.length }}
-                    </v-list-tile-subtitle>
-                  </v-list-tile>
-                </v-list>
+                  <v-layout>
+                    <p>Online: {{ users.length }}</p>
+                  </v-layout>
               </v-flex>
 
               <v-spacer/>
@@ -114,24 +127,32 @@ export default {
       <v-spacer/>
     </v-layout>
 
-    <!-- <v-row>
-      <v-col>
-        <v-row style="border:2px solid red" justify-center>
-          <v-spacer/>
-          <v-col md4>
-            <img alt="Vue logo" src="../assets/logo.png">
-          </v-col>
-          <v-spacer/>
-        </v-row>
-        <v-row
-          class="body"
-          v-for="message in messages"
-          :key="message.id"
-        >
-          <h1>You have a message: {{ message.message }} </h1>
-        </v-row>
-      </v-col>
-    </v-row> -->
+    <v-dialog
+      v-model="welcomeDialog"
+      max-width="500"
+      persistent
+    >
+      <v-card>
+        <v-card-title>
+          Who Are You ?
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="username"
+            label="Your Name"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            class="success"
+            depressed block
+            @click="welcomeDialog = false"
+          >
+            Enter
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -141,4 +162,11 @@ export default {
   color: #333;
 }
 
+.main-toolbar {
+  background-color: #333 !important;
+}
+
+.chat-toolbar {
+  color:black !important;
+}
 </style>
