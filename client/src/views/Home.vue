@@ -157,6 +157,8 @@ export default {
               v-for="message in messages"
               :key="message.id"
             >
+              <v-spacer v-if="message.username === username"/>
+
               <v-flex md4 pt-5>
                 <v-card>
                   <v-card-title>
@@ -170,7 +172,8 @@ export default {
                   </v-card-text>
                 </v-card>
               </v-flex>
-              <v-spacer/>
+
+              <v-spacer v-if="message.username !== username"/>
             </v-layout>
           </v-card-text>
 
@@ -184,6 +187,7 @@ export default {
                   outlined
                   single-line
                   label="Type your message..."
+                  @keyup.enter.native="sendMessage"
                 />
               </v-flex>
 
