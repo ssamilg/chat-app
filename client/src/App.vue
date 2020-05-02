@@ -1,11 +1,3 @@
-<template>
-  <v-row>
-    <v-col>
-      <home/>
-    </v-col>
-  </v-row>
-</template>
-
 <script>
 import Home from './views/Home.vue';
 
@@ -16,8 +8,13 @@ export default {
     Home,
   },
 
-  data: () => ({
-    //
-  }),
 };
 </script>
+
+<template>
+  <v-row>
+    <v-col>
+      <home/>
+    </v-col>
+  </v-row>
+</template>
