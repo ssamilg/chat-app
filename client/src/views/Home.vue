@@ -152,7 +152,7 @@ export default {
           <v-divider/>
 
           <!-- Chat Content -->
-          <v-card-text style="height:80vh;">
+          <v-card-text style="height:80vh;overflow:auto;">
             <v-layout
               v-for="message in messages"
               :key="message.id"
@@ -187,7 +187,7 @@ export default {
                   outlined
                   single-line
                   label="Type your message..."
-                  @keyup.enter.native="sendMessage"
+                  @keydown.enter.shift.prevent="sendMessage"
                 />
               </v-flex>
 
