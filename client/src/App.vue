@@ -7,10 +7,11 @@ export default {
   components: {
     Home,
   },
-
 };
 </script>
 
 <template>
-  <home/>
+  <v-app>
+    <home/>
+  </v-app>
 </template>
