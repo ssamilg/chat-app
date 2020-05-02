@@ -1,7 +1,7 @@
 # chat-app
 
-#4 SERVER
+# 4 SERVER
 node server.js
 
-#4 CLIENT
+# 4 CLIENT
 npm run serve
