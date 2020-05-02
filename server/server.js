@@ -1,25 +1,53 @@
-var http = require("http");
-var express = require("express");
-var app = express();
-var server = http.createServer(app);
-var io = require("socket.io").listen(server);
+const app = require("express")();
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
+let users = [];
+let messages = [];
+let index = 0;
 
 app.get("/", (req, res) => {
   res.sendFile("./index.html", { root: __dirname });
 });
 
-io.on("connection", function (socket) {
-  console.log("A user connected");
+io.on("connection", (socket) => {
+//Logged-in users
+  socket.emit('loggedIn', {
+    users: users.map(s => s.username),
+    messages: messages
+  });
 
-  socket.on("message", function (msg) {
-    io.emit("message", {
-      user: 'USER',
+//New User joined
+  socket.on("newUser", (username) => {
+    console.log(`${socket.user} connected.`);
+    socket.username = username;
+    users.push(socket);
+
+    io.emit('userOnline', socket.username)
+  });
+
+  //Disconnect
+  socket.on("disconnect", () => {
+    console.log(`${socket.user} disconnected.`);
+    io.emit('userLeft', socket.username);
+    users.splice(users.indexOf(socket), 1);
+  });
+
+  //Send message
+  socket.on("message", (msg) => {
+    let message = {
+      id: index,
+      username: socket.username,
       message: msg,
-    });
+    }
+
+    messages.push(message);
+    
+    //Logged-in users recieve message
+    io.emit("message", {message});
+
+    index++;
   });
-  socket.on("disconnect", function () {
-    console.log("A user disconnected");
-  });
+
 });
 
 const port = 8000;
