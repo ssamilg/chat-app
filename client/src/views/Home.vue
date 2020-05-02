@@ -37,12 +37,21 @@ export default {
         i am a button
       </v-btn>
       <v-row
+        class="body"
         v-for="message in messages"
         :key="message.id"
       >
-        <h1>You have a message: {{ message }} </h1>
+        <h1>You have a message: {{ message.message }} </h1>
       </v-row>
     </v-col>
     <v-spacer/>
   </v-row>
 </template>
+
+<style lang="scss" scoped>
+.body {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+</style>
