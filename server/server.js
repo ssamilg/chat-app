@@ -1,9 +1,25 @@
 const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
+const mongoose = require("mongoose");
+
 let users = [];
 let messages = [];
-let index = 0;
+
+mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true });
+
+const ChapSchema = mongoose.Schema({
+  username: String,
+  message: String,
+});
+
+const ChatModel = mongoose.model("chat", ChapSchema);
+
+ChatModel.find((err, result) => {
+  if (err) throw err;
+
+  messages = result;
+});
 
 app.get("/", (req, res) => {
   res.sendFile("./index.html", { root: __dirname });
@@ -34,18 +50,21 @@ io.on("connection", (socket) => {
 
   //Send message
   socket.on("message", (msg) => {
-    let message = {
-      id: index,
+    let message = new ChatModel({
       username: socket.username,
-      message: msg,
-    }
+      message: msg,      
+    });
 
-    messages.push(message);
+    message.save((err, result) => {
+      if (err) throw err;
+      
+      messages.push(result);
+    });
+    // messages.push(message);
     
     //Logged-in users recieve message
-    io.emit("message", {message});
+    io.emit("message", result);
 
-    index++;
   });
 
 });
