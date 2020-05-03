@@ -1,6 +1,7 @@
 <script>
 // @ is an alias to /src
 import socketIO from 'socket.io-client';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Home',
@@ -9,7 +10,7 @@ export default {
 
   data() {
     return {
-      username: '',
+      // username: '',
       socket: socketIO('http://localhost:8000/'),
       messages: [],
       users: [],
@@ -19,27 +20,18 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['username']),
   },
-  // watch: {
-  //   welcomeDialog() {
-  //     if (!this.welcomeDialog) {
-  //       this.joinServer();
-  //     }
-  //   },
-  // },
+  created() {
+    if (this.username === '') this.$router.push('/Login');
+  },
   mounted() {
-    // if (this.username === '') {
-    //   this.welcomeDialog = true;
-    // }
-    this.username = prompt('Type your username');
+    this.welcomeDialog = true;
+    this.scrollToEnd();
 
-    if (!this.username) {
-      this.username = 'Anonymous';
+    if (this.username) {
+      this.joinServer();
     }
-
-    this.joinServer();
-
-    this.getMessage();
   },
   methods: {
     joinServer() {
@@ -60,20 +52,19 @@ export default {
       });
       this.socket.on('message', (data) => {
         this.messages.push(data.message);
+        this.scrollToEnd();
       });
     },
-    closeWelcomeDialog() {
-      this.welcomeDialog = false;
-      if (this.username === '') this.username = 'Anonymous';
-    },
     sendMessage() {
-      if (!this.message) {
-        alert('Type message');
-        return;
-      }
-
       this.socket.emit('message', (this.message));
       this.message = '';
+      this.scrollToEnd();
+    },
+    scrollToEnd() {
+      setTimeout(() => {
+        const container = this.$el.querySelector('#chat-flow');
+        container.scrollTop = container.scrollHeight;
+      }, 100);
     },
   },
 };
@@ -106,6 +97,7 @@ export default {
           </v-flex>
           <v-spacer/>
         </v-layout>
+
         <v-layout>
           <v-spacer/>
           <v-flex md6>
@@ -113,7 +105,49 @@ export default {
           </v-flex>
           <v-spacer/>
         </v-layout>
+
+        <v-layout>
+          <v-spacer/>
+          <v-flex md6>
+            <v-list>
+              <v-list-item>
+                <strong class="text-center">Global</strong>
+              </v-list-item>
+
+              <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
+                <strong>Rooms</strong>
+              </v-list-item>
+
+              <v-list-item>
+                <strong>Test Room</strong>
+              </v-list-item>
+
+              <v-list-item>
+                <strong>Room 1</strong>
+              </v-list-item>
+
+              <v-list-item>
+                <strong>Room 2</strong>
+              </v-list-item>
+
+              <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
+                <strong>Private Chats</strong>
+              </v-list-item>
+
+              <v-list-item>
+                <strong>Chat 1</strong>
+              </v-list-item>
+
+              <v-list-item>
+                <strong>Chat 2</strong>
+              </v-list-item>
+
+            </v-list>
+          </v-flex>
+          <v-spacer/>
+        </v-layout>
       </v-flex>
+
       <v-flex md8>
         <v-card
           style="margin-top: -64px;"
@@ -132,27 +166,13 @@ export default {
               </v-flex>
 
               <v-spacer/>
-
-              <v-flex md2>
-                <v-btn icon>
-                  <v-icon>mdi-magnify</v-icon>
-                </v-btn>
-
-                <v-btn icon>
-                  <v-icon>mdi-apps</v-icon>
-                </v-btn>
-
-                <v-btn icon>
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </v-flex>
             </v-layout>
           </v-toolbar>
 
           <v-divider/>
 
           <!-- Chat Content -->
-          <v-card-text style="height:80vh;overflow:auto;">
+          <v-card-text id="chat-flow" style="height:80vh;overflow:auto;">
             <v-layout
               v-for="message in messages"
               :key="message.id"
@@ -177,6 +197,7 @@ export default {
             </v-layout>
           </v-card-text>
 
+          <!-- Chat Actions -->
           <v-card-actions>
             <v-layout>
               <v-flex md10 align-self-start>
@@ -206,31 +227,26 @@ export default {
           </v-card-actions>
         </v-card>
       </v-flex>
+
       <v-spacer/>
     </v-layout>
 
     <v-dialog
       v-model="welcomeDialog"
       max-width="500"
-      persistent
     >
       <v-card>
-        <v-card-title>
-          Who Are You ?
-        </v-card-title>
+        <v-card-title/>
         <v-card-text>
-          <v-text-field
-            v-model="username"
-            label="Your Name"
-          />
+          <h1>Welcome to ChatApp !</h1>
         </v-card-text>
         <v-card-actions>
           <v-btn
-            class="success"
+            class="info"
             depressed block
-            @click="closeWelcomeDialog"
+            @click.stop="welcomeDialog = false"
           >
-            Enter
+            Start Chatting
           </v-btn>
         </v-card-actions>
       </v-card>
