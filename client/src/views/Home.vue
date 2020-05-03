@@ -175,7 +175,7 @@ export default {
           <v-card-text id="chat-flow" style="height:80vh;overflow:auto;">
             <v-layout
               v-for="message in messages"
-              :key="message.id"
+              :key="message._id"
             >
               <v-spacer v-if="message.username === username"/>
 
