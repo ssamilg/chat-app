@@ -2,13 +2,22 @@ const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const mongoose = require("mongoose");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
 
 let users = [];
 let messages = [];
 
 //DB Configs
 mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true });
- 
+
+//Middlewares
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+
+//Routes
+app.use('/users', require('./routes/UserRoute'));
+
 // {
 //   const MessageSchema = mongoose.Schema({
 //     connect: String,
