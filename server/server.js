@@ -6,14 +6,34 @@ const mongoose = require("mongoose");
 let users = [];
 let messages = [];
 
+//DB Configs
 mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true });
+ 
+// {
+//   const MessageSchema = mongoose.Schema({
+//     connect: String,
+//     messageFrom: Int32Array,
+//     messageTo: Int32Array,
+//     dateSend: Date,
+//   });
+//   const RoomSchema = mongoose.Schema({
+//     title: String,
+//     description: String,
+//     dateCreated: Date,
+//   });
 
-const ChapSchema = mongoose.Schema({
+//   const MessageModel = mongoose.model("message", MessageSchema);
+//   const RoomModel = mongoose.model("room", RoomSchema);
+// }
+
+
+const ChatSchema = mongoose.Schema({
   username: String,
   message: String,
 });
 
-const ChatModel = mongoose.model("chat", ChapSchema);
+const ChatModel = mongoose.model("chat", ChatSchema);
+
 
 ChatModel.find((err, result) => {
   if (err) throw err;
@@ -21,9 +41,6 @@ ChatModel.find((err, result) => {
   messages = result;
 });
 
-app.get("/", (req, res) => {
-  res.sendFile("./index.html", { root: __dirname });
-});
 
 io.on("connection", (socket) => {
 //Logged-in users
@@ -63,13 +80,13 @@ io.on("connection", (socket) => {
     // messages.push(message);
     
     //Logged-in users recieve message
-    io.emit("message", result);
+    io.emit("message", message);
 
   });
 
 });
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 http.listen(port, () => {
   console.log("Server is listening on:" + port + " now...");
 });
