@@ -14,6 +14,7 @@ export default {
       socket: socketIO('http://localhost:8000/'),
       messages: [],
       users: [],
+      rooms: [{ id: 0, name: 'Test Room' }, { id: 1, name: 'room 2' }],
       drawer: false,
       welcomeDialog: false,
       message: '',
@@ -60,6 +61,10 @@ export default {
       this.message = '';
       this.scrollToEnd();
     },
+    // joinRoom(room) {
+    //   const username = this.username;
+    //   socket.emit('joinRoom', { username, room });
+    // },
     scrollToEnd() {
       setTimeout(() => {
         const container = this.$el.querySelector('#chat-flow');
@@ -118,16 +123,12 @@ export default {
                 <strong>Rooms</strong>
               </v-list-item>
 
-              <v-list-item>
-                <strong>Test Room</strong>
-              </v-list-item>
-
-              <v-list-item>
-                <strong>Room 1</strong>
-              </v-list-item>
-
-              <v-list-item>
-                <strong>Room 2</strong>
+              <v-list-item
+                v-for="room in rooms"
+                :key="room.id"
+                @click="joinRoom(room)"
+              >
+                <strong>{{ room.name }}</strong>
               </v-list-item>
 
               <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">

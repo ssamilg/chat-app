@@ -1,11 +1,8 @@
 <script>
-import { mapActions } from 'vuex';
-
 export default {
-  Name: 'Login',
+  Name: 'SignUp',
   data() {
     return {
-      username: '',
       formData: {},
       rules: { required: (value) => !!value || 'Required.' },
     };
@@ -13,15 +10,8 @@ export default {
   computed: {
   },
   methods: {
-    ...mapActions(['setUsername', 'login']),
     enter() {
-      // if (this.username === '') this.username = 'Anonymous';
-      // this.setUsername(this.username);
-      // this.$router.push('/');
-      this.login(this.formData)
-        .catch((err) => {
-          console.log(err);
-        });
+      this.$router.push('/');
     },
   },
 };
@@ -38,6 +28,24 @@ export default {
           <v-spacer/>
         </v-card-title>
         <v-card-text>
+          <v-layout>
+            <v-flex>
+              <v-text-field
+                v-model="formData.name"
+                label="Name"
+                @keyup.enter.native="enter"
+              />
+            </v-flex>
+          </v-layout>
+          <v-layout>
+            <v-flex>
+              <v-text-field
+                v-model="formData.surname"
+                label="Surname"
+                @keyup.enter.native="enter"
+              />
+            </v-flex>
+          </v-layout>
           <v-layout>
             <v-flex>
               <v-text-field
@@ -66,15 +74,15 @@ export default {
             depressed block
             @click.stop="enter"
           >
-            Login
+            Sign-Up
           </v-btn>
         </v-card-actions>
       </v-card>
       <v-layout>
         <v-spacer/>
         <v-flex style="text-align:center" pt-4>
-          <router-link to="/SignUp" style="color:blue">
-            Not a member ? Sign-up real quick.
+          <router-link to="/Login" style="color:blue">
+            Already a member. Go to Login.
           </router-link>
         </v-flex>
         <v-spacer/>

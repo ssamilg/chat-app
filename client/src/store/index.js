@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import axios from 'axios';
 
 Vue.use(Vuex);
 
@@ -20,6 +21,9 @@ export default new Vuex.Store({
   actions: {
     setUsername({ commit }, value) {
       commit('setUsername', value);
+    },
+    login(_, params) {
+      return axios.post('/users/login', params);
     },
   },
   modules: {
