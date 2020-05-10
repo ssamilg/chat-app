@@ -4,16 +4,24 @@ const io = require("socket.io")(http);
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+require("dotenv/config");
 
 let users = [];
 let messages = [];
 
 //DB Configs
-mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true });
+// mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+//   console.log('db connected');
+// });
+mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+  console.log('db connected');
+});
 
 //Middlewares
 app.use(morgan('dev'));
 app.use(bodyParser.json());
+app.use(cors());
 
 //Routes
 app.use('/users', require('./routes/UserRoute'));
@@ -95,7 +103,7 @@ io.on("connection", (socket) => {
 
 });
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 4000;
 http.listen(port, () => {
   console.log("Server is listening on:" + port + " now...");
 });
