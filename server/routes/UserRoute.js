@@ -18,4 +18,4 @@ router.route('/login')
 router.route('/secret')
   .get(passportJwt, UserController.secret);
 
-  module.exports = router;
+module.exports = router;

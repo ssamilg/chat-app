@@ -25,8 +25,8 @@ app.use(cors());
 
 //Routes
 app.use('/users', require('./routes/UserRoute'));
+app.use('/chat', require('./routes/MessageRoute'));
 
-// {
 //   const MessageSchema = mongoose.Schema({
 //     connect: String,
 //     messageFrom: Int32Array,
@@ -41,7 +41,6 @@ app.use('/users', require('./routes/UserRoute'));
 
 //   const MessageModel = mongoose.model("message", MessageSchema);
 //   const RoomModel = mongoose.model("room", RoomSchema);
-// }
 
 
 const ChatSchema = mongoose.Schema({
