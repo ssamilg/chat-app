@@ -140,8 +140,11 @@ export default {
                 <strong>Private Chats</strong>
               </v-list-item>
 
-              <v-list-item>
-                <strong>Chat 1</strong>
+              <v-list-item
+                v-for="user in users"
+                :key="user._id"
+              >
+                <strong>{{ user }}</strong>
               </v-list-item>
 
               <v-list-item>
