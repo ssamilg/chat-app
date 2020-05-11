@@ -28,6 +28,9 @@ export default new Vuex.Store({
     signup(_, params) {
       return axios.post('/users/signUp', params);
     },
+    fetchUsers() {
+      return axios.get('/users');
+    },
   },
   modules: {
   },
