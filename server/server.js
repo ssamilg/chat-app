@@ -15,11 +15,6 @@ let messages = [];
 let room = 'all';
 
 //DB Configs
-//Local
-// mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true }, () => {
-//   console.log('db connected');
-// });
-//Live
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
   console.log('db connected');
 });
@@ -32,20 +27,6 @@ app.use(cors());
 //Routes
 app.use('/users', require('./routes/UserRoute'));
 app.use('/chat', require('./routes/MessageRoute'));
-
-// const ChatSchema = mongoose.Schema({
-//   username: String,
-//   message: String,
-// });
-
-// const ChatModel = mongoose.model("chat", ChatSchema);
-
-
-// ChatModel.find((err, result) => {
-//   if (err) throw err;
-
-//   messages = result;
-// });
 
 MessageModel.find({ messageTo: room },(err, result) => {
   if (err) throw err;
@@ -100,7 +81,6 @@ io.on("connection", (socket) => {
       
       messages.push(result);
     });
-    // messages.push(message);
     
     //Logged-in users recieve message
     io.emit("message", message);
@@ -108,7 +88,7 @@ io.on("connection", (socket) => {
 
 });
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT;
 http.listen(port, () => {
   console.log("Server is listening on:" + port + " now...");
 });
