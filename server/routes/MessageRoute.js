@@ -2,11 +2,16 @@ const express = require('express');
 const router = require('express-promise-router')();
 const MessageModel = require('../models/MessageModel');
 
-  router.get('/', (req, res) => {
-    // Respond
+  router.get('/', async (req, res) => {
+    try {
+      const messages = await MessageModel.find();
+      res.json(messages);
+    } catch (error) {
+      res.json({message: error});
+    }
   });
 
-  router.post('/', (req, res) => {
+  router.post('/', async (req, res) => {
     const message = new MessageModel({
       content: req.body.content,
       messageTo: req.body.messageTo,
@@ -22,4 +27,12 @@ const MessageModel = require('../models/MessageModel');
     });
   });
 
+  router.get('/:roomName', async (req, res) => {
+    try {
+      const roomMessages = await MessageModel.find({ messageTo: req.params.roomName })
+      res.json(roomMessages);      
+    } catch (error) {
+      res.json({ message: error })
+    }
+  });
 module.exports = router;

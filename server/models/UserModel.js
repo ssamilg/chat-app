@@ -13,6 +13,12 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  name:{
+    type: String,
+  },
+  surname:{
+    type: String,
+  },
   dateCreated:{
     type: Date,
     required: true,

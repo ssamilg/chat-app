@@ -13,7 +13,7 @@ signToken = (user) => {
 
 module.exports = {
   signUp: async (req, res, next) => {
-    const { username, password } = req.value.body;
+    const { username, password, name, surname } = req.value.body;
 
     //Check is user uniqe
     const foundUser = await UserModel.findOne({ username });
@@ -23,9 +23,11 @@ module.exports = {
     } 
 
     //Create new user
-    const newUser = new UserModel(
-      { username,
+    const newUser = new UserModel({ 
+        username,
         password,
+        name,
+        surname,
         dateCreated: new Date().getTime(),
       });
     await newUser.save();

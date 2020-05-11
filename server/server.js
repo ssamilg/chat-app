@@ -5,15 +5,21 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const moment = require("moment");
 require("dotenv/config");
+
+const MessageModel = require("./models/MessageModel");
 
 let users = [];
 let messages = [];
+let room = 'all';
 
 //DB Configs
+//Local
 // mongoose.connect("mongodb://127.0.0.1:27017/chatApp", { useNewUrlParser: true, useUnifiedTopology: true }, () => {
 //   console.log('db connected');
 // });
+//Live
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
   console.log('db connected');
 });
@@ -27,31 +33,21 @@ app.use(cors());
 app.use('/users', require('./routes/UserRoute'));
 app.use('/chat', require('./routes/MessageRoute'));
 
-//   const MessageSchema = mongoose.Schema({
-//     connect: String,
-//     messageFrom: Int32Array,
-//     messageTo: Int32Array,
-//     dateSend: Date,
-//   });
-//   const RoomSchema = mongoose.Schema({
-//     title: String,
-//     description: String,
-//     dateCreated: Date,
-//   });
+// const ChatSchema = mongoose.Schema({
+//   username: String,
+//   message: String,
+// });
 
-//   const MessageModel = mongoose.model("message", MessageSchema);
-//   const RoomModel = mongoose.model("room", RoomSchema);
+// const ChatModel = mongoose.model("chat", ChatSchema);
 
 
-const ChatSchema = mongoose.Schema({
-  username: String,
-  message: String,
-});
+// ChatModel.find((err, result) => {
+//   if (err) throw err;
 
-const ChatModel = mongoose.model("chat", ChatSchema);
+//   messages = result;
+// });
 
-
-ChatModel.find((err, result) => {
+MessageModel.find({ messageTo: room },(err, result) => {
   if (err) throw err;
 
   messages = result;
@@ -65,13 +61,22 @@ io.on("connection", (socket) => {
     messages: messages
   });
 
-//New User joined
+  //New User joined
   socket.on("newUser", (username) => {
     console.log(`${username} connected.`);
     socket.username = username;
+    socket.room = room;
     users.push(socket);
 
     io.emit('userOnline', socket.username)
+  });
+
+  //Change Room
+  socket.on("joinRoom", async newRoom => {
+    const roomMessages = await MessageModel.find({ messageTo: newRoom });
+    messages = roomMessages;
+    socket.room = newRoom;
+    io.emit("synchMessages", messages);
   });
 
   //Disconnect
@@ -83,9 +88,11 @@ io.on("connection", (socket) => {
 
   //Send message
   socket.on("message", (msg) => {
-    let message = new ChatModel({
-      username: socket.username,
-      message: msg,      
+    const message = new MessageModel({
+      messageFrom: socket.username,
+      messageTo: socket.room,
+      content: msg,
+      dateSend: Date.now(),      
     });
 
     message.save((err, result) => {
@@ -97,7 +104,6 @@ io.on("connection", (socket) => {
     
     //Logged-in users recieve message
     io.emit("message", message);
-
   });
 
 });
