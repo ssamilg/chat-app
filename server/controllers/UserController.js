@@ -47,4 +47,10 @@ module.exports = {
   secret: async (req, res, next) => {
     res.json({ secret: 'resource' })
   },
+
+  users: async (req, res) => {
+    let users = await UserModel.find();
+    users = users.map(u => u.username);
+    res.json(users);
+  },
 }

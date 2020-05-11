@@ -9,7 +9,9 @@ const moment = require("moment");
 require("dotenv/config");
 
 const MessageModel = require("./models/MessageModel");
+const UserModel = require("./models/UserModel");
 
+let allUsers = [];
 let users = [];
 let messages = [];
 let room = 'all';
@@ -34,6 +36,11 @@ MessageModel.find({ messageTo: room },(err, result) => {
   messages = result;
 });
 
+UserModel.find((err, result) => {
+  if (err) throw err;
+
+  allUsers = result.map(u => u.username);
+});
 
 io.on("connection", (socket) => {
 //Logged-in users
