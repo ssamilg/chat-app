@@ -15,13 +15,13 @@ export default {
   methods: {
     ...mapActions(['setUsername', 'login']),
     enter() {
-      // if (this.username === '') this.username = 'Anonymous';
-      // this.setUsername(this.username);
-      // this.$router.push('/');
-      this.login(this.formData)
-        .catch((err) => {
-          console.log(err);
-        });
+      if (this.formData.username === '') this.formData.username = 'Anonymous';
+      this.setUsername(this.formData.username);
+      this.$router.push('/');
+      // this.login(this.formData)
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
     },
   },
 };

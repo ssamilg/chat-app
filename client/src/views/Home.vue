@@ -14,7 +14,8 @@ export default {
       socket: socketIO('http://localhost:8000/'),
       messages: [],
       users: [],
-      rooms: [{ id: 0, name: 'Test Room' }, { id: 1, name: 'room 2' }],
+      rooms: [{ id: 0, name: 'Test Room' }, { id: 1, name: 'all' }],
+      activeRoom: 'all',
       drawer: false,
       welcomeDialog: false,
       message: '',
@@ -44,6 +45,14 @@ export default {
 
       this.listen();
     },
+    joinRoom(room) {
+      this.activeRoom = room.name;
+      this.socket.emit('joinRoom', (room.name));
+      this.socket.on('synchMessages', (messages) => {
+        this.messages = messages;
+      });
+      this.scrollToEnd();
+    },
     listen() {
       this.socket.on('userOnline', (user) => {
         this.users.push(user);
@@ -52,7 +61,7 @@ export default {
         this.users.splice(this.users.indexOf(user), 1);
       });
       this.socket.on('message', (data) => {
-        this.messages.push(data.message);
+        this.messages.push(data);
         this.scrollToEnd();
       });
     },
@@ -61,10 +70,6 @@ export default {
       this.message = '';
       this.scrollToEnd();
     },
-    // joinRoom(room) {
-    //   const username = this.username;
-    //   socket.emit('joinRoom', { username, room });
-    // },
     scrollToEnd() {
       setTimeout(() => {
         const container = this.$el.querySelector('#chat-flow');
@@ -158,7 +163,7 @@ export default {
             <v-layout style="margin-top:8px;">
                 <v-flex md4>
                   <v-layout style="font-size:24px;">
-                    <strong>Room Test</strong>
+                    <strong>{{ activeRoom }}</strong>
                   </v-layout>
 
                   <v-layout>
@@ -178,23 +183,23 @@ export default {
               v-for="message in messages"
               :key="message._id"
             >
-              <v-spacer v-if="message.username === username"/>
+              <v-spacer v-if="message.messageFrom === username"/>
 
               <v-flex md4 pt-5>
                 <v-card>
                   <v-card-title>
                     <v-icon>face</v-icon>
-                    {{ message.username }}
+                    {{ message.messageFrom }}
                   </v-card-title>
                   <v-divider/>
 
                   <v-card-text>
-                    {{ message.message }}
+                    {{ message.content }}
                   </v-card-text>
                 </v-card>
               </v-flex>
 
-              <v-spacer v-if="message.username !== username"/>
+              <v-spacer v-if="message.messageFrom !== username"/>
             </v-layout>
           </v-card-text>
 
