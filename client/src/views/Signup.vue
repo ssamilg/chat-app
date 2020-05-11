@@ -1,4 +1,6 @@
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   Name: 'SignUp',
   data() {
@@ -8,10 +10,21 @@ export default {
     };
   },
   computed: {
+    isFormValid() {
+      return (this.formData.username && this.formData.password);
+    },
   },
   methods: {
+    ...mapActions(['setUsername', 'signup']),
     enter() {
-      this.$router.push('/');
+      this.signup(this.formData)
+        .then(() => {
+          this.setUsername(this.formData.username);
+          this.$router.push('/');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
 };
@@ -72,6 +85,7 @@ export default {
           <v-btn
             class="success"
             depressed block
+            :disabled="!isFormValid"
             @click.stop="enter"
           >
             Sign-Up
@@ -82,7 +96,7 @@ export default {
         <v-spacer/>
         <v-flex style="text-align:center" pt-4>
           <router-link to="/Login" style="color:blue">
-            Already a member. Go to Login.
+            Already a member ? Go to Login.
           </router-link>
         </v-flex>
         <v-spacer/>
