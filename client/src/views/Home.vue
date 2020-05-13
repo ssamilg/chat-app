@@ -40,7 +40,6 @@ export default {
     ...mapActions(['fetchUsers', 'setActiveChat']),
     joinServer() {
       this.socket.on('loggedIn', (data) => {
-        console.log(data);
         this.onlineUsers = data.users;
         // this.messages = data.messages;
         this.socket.emit('newUser', this.user);
@@ -69,6 +68,7 @@ export default {
       this.socket.on('pmMessages', (data) => {
         this.messages = data;
       });
+      this.scrollToEnd();
     },
     listen() {
       this.socket.on('userOnline', (user) => {
@@ -83,14 +83,15 @@ export default {
       });
     },
     sendMessage() {
-      const params = {
+      const data = {
         messageFrom: this.user.username,
         messageTo: this.targetUser.username,
         targetSocket: this.targetUser.socket,
         senderSocket: this.user.socket,
         content: this.message,
       };
-      this.socket.emit('message', (params));
+      this.socket.emit('message', (data));
+      this.messages.push(data);
       this.message = '';
       this.scrollToEnd();
     },
