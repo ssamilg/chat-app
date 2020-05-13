@@ -6,21 +6,33 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    username: '',
+    user: {
+      username: '',
+    },
+    activeChat: '',
   },
   getters: {
-    username(state) {
-      return state.username;
+    user(state) {
+      return state.user;
+    },
+    activeChat(state) {
+      return state.activeChat;
     },
   },
   mutations: {
-    setUsername(state, value) {
-      state.username = value;
+    setUser(state, value) {
+      state.user = value;
+    },
+    setActiveChat(state, value) {
+      state.activeChat = value;
     },
   },
   actions: {
-    setUsername({ commit }, value) {
-      commit('setUsername', value);
+    setUser({ commit }, value) {
+      commit('setUser', value);
+    },
+    setActiveChat({ commit }, value) {
+      commit('setActiveChat', value);
     },
     login(_, params) {
       return axios.post('/users/login', params);
@@ -28,8 +40,8 @@ export default new Vuex.Store({
     signup(_, params) {
       return axios.post('/users/signUp', params);
     },
-    fetchUsers() {
-      return axios.get('/users');
+    fetchUserSocket(_, username) {
+      return axios.get(`/users/${username}`);
     },
   },
   modules: {

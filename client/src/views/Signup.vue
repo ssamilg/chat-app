@@ -15,11 +15,15 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['setUsername', 'signup']),
+    ...mapActions(['setUser', 'signup', 'fetchUserSocket']),
     enter() {
       this.signup(this.formData)
         .then(() => {
-          this.setUsername(this.formData.username);
+          this.fetchUserSocket(this.formData.username)
+            .then((response) => {
+              this.formData = response.data.user;
+            });
+          this.setUser(this.formData);
           this.$router.push('/');
         })
         .catch((err) => {

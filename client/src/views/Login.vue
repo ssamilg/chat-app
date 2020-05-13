@@ -5,7 +5,6 @@ export default {
   Name: 'Login',
   data() {
     return {
-      username: '',
       formData: {},
       rules: { required: (value) => !!value || 'Required.' },
     };
@@ -13,12 +12,18 @@ export default {
   computed: {
   },
   methods: {
-    ...mapActions(['setUsername', 'login']),
+    ...mapActions(['setUser', 'login', 'fetchUserSocket']),
     enter() {
       this.login(this.formData)
         .then(() => {
-          this.setUsername(this.formData.username);
-          this.$router.push('/');
+          this.fetchUserSocket(this.formData.username)
+            .then((response) => {
+              this.formData = response.data.user;
+            })
+            .finally(() => {
+              this.setUser(this.formData);
+              this.$router.push('/');
+            });
         })
         .catch((err) => {
           console.log(err);

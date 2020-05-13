@@ -1,7 +1,7 @@
 <script>
 // @ is an alias to /src
 import socketIO from 'socket.io-client';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'Home',
@@ -10,52 +10,69 @@ export default {
 
   data() {
     return {
-      // username: '',
       socket: socketIO('http://localhost:8000/'),
-      messages: [],
-      users: [],
-      rooms: [{ id: 0, name: 'Test Room' }, { id: 1, name: 'all' }],
-      activeRoom: 'all',
-      drawer: false,
-      welcomeDialog: false,
       message: '',
+      activeRoom: 'all',
+      messages: [],
+      onlineUsers: [],
+      targetUser: {},
+      // allUsers: [],
+      users: [],
+      welcomeDialog: false,
+      rooms: [{ id: 0, name: 'Test Room' }, { id: 1, name: 'all' }],
     };
   },
   computed: {
-    ...mapGetters(['username']),
+    ...mapGetters(['user', 'activeChat']),
   },
   created() {
-    if (this.username === '') this.$router.push('/Login');
+    if (this.user.username === '') this.$router.push('/Login');
   },
   mounted() {
     this.welcomeDialog = true;
     this.scrollToEnd();
 
-    if (this.username) {
+    if (this.user.username !== '') {
       this.joinServer();
     }
   },
   methods: {
+    ...mapActions(['fetchUsers', 'setActiveChat']),
     joinServer() {
       this.socket.on('loggedIn', (data) => {
-        this.users = data.users;
-        this.messages = data.messages;
-        this.socket.emit('newUser', this.username);
+        console.log(data);
+        this.onlineUsers = data.users;
+        // this.messages = data.messages;
+        this.socket.emit('newUser', this.user);
       });
 
       this.listen();
     },
-    joinRoom(room) {
-      this.activeRoom = room.name;
-      this.socket.emit('joinRoom', (room.name));
-      this.socket.on('synchMessages', (messages) => {
-        this.messages = messages;
+    // joinRoom(room) {
+    //   this.activeRoom = room.name;
+    //   this.socket.emit('joinRoom', (room.name));
+    //   this.socket.on('roomMessages', (data) => {
+    //     console.log(data);
+    //     this.messages = data;
+    //   });
+    //   this.scrollToEnd();
+    // },
+    joinPM(user) {
+      this.messages = [];
+      this.activeRoom = user.username;
+      this.targetUser = user;
+      const params = {
+        messageFrom: this.user.username,
+        messageTo: this.targetUser.username,
+      };
+      this.socket.emit('joinPM', (params));
+      this.socket.on('pmMessages', (data) => {
+        this.messages = data;
       });
-      this.scrollToEnd();
     },
     listen() {
       this.socket.on('userOnline', (user) => {
-        this.users.push(user);
+        this.onlineUsers.push(user);
       });
       this.socket.on('userLeft', (user) => {
         this.users.splice(this.users.indexOf(user), 1);
@@ -66,7 +83,14 @@ export default {
       });
     },
     sendMessage() {
-      this.socket.emit('message', (this.message));
+      const params = {
+        messageFrom: this.user.username,
+        messageTo: this.targetUser.username,
+        targetSocket: this.targetUser.socket,
+        senderSocket: this.user.socket,
+        content: this.message,
+      };
+      this.socket.emit('message', (params));
       this.message = '';
       this.scrollToEnd();
     },
@@ -111,20 +135,19 @@ export default {
         <v-layout>
           <v-spacer/>
           <v-flex md6>
-            <strong>Username: {{ username }}</strong>
+            <strong>Username: {{ user.username }}</strong>
           </v-flex>
           <v-spacer/>
         </v-layout>
 
         <v-layout>
-          <v-spacer/>
-          <v-flex md6>
+          <v-flex>
             <v-list>
               <v-list-item>
-                <strong class="text-center">Global</strong>
+                <strong>Global</strong>
               </v-list-item>
 
-              <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
+              <!-- <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
                 <strong>Rooms</strong>
               </v-list-item>
 
@@ -134,26 +157,22 @@ export default {
                 @click="joinRoom(room)"
               >
                 <strong>{{ room.name }}</strong>
-              </v-list-item>
+              </v-list-item> -->
 
               <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
                 <strong>Private Chats</strong>
               </v-list-item>
 
               <v-list-item
-                v-for="user in users"
+                v-for="user in onlineUsers"
                 :key="user._id"
+                @click.stop="joinPM(user)"
               >
-                <strong>{{ user }}</strong>
-              </v-list-item>
-
-              <v-list-item>
-                <strong>Chat 2</strong>
+                <strong>{{ user.username }}</strong>
               </v-list-item>
 
             </v-list>
           </v-flex>
-          <v-spacer/>
         </v-layout>
       </v-flex>
 
@@ -170,7 +189,7 @@ export default {
                   </v-layout>
 
                   <v-layout>
-                    <p>Online: {{ users.length }}</p>
+                    <p>Online: {{ onlineUsers.length }}</p>
                   </v-layout>
               </v-flex>
 
@@ -186,7 +205,7 @@ export default {
               v-for="message in messages"
               :key="message._id"
             >
-              <v-spacer v-if="message.messageFrom === username"/>
+              <v-spacer v-if="message.messageFrom === user.username"/>
 
               <v-flex md4 pt-5>
                 <v-card>
@@ -202,7 +221,7 @@ export default {
                 </v-card>
               </v-flex>
 
-              <v-spacer v-if="message.messageFrom !== username"/>
+              <v-spacer v-if="message.messageFrom !== user.username"/>
             </v-layout>
           </v-card-text>
 
