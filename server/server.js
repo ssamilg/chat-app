@@ -11,10 +11,9 @@ require("dotenv/config");
 const MessageModel = require("./models/MessageModel");
 const UserModel = require("./models/UserModel");
 
-let allUsers = [];
 let users = [];
 let messages = [];
-let room = 'all';
+let room = 'Global';
 
 //DB Configs
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
@@ -36,35 +35,45 @@ MessageModel.find({ messageTo: room },(err, result) => {
   messages = result;
 });
 
-UserModel.find((err, result) => {
-  if (err) throw err;
 
-  allUsers = result.map(u => u.username);
-});
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
 //Logged-in users
+  // let allUsers = await UserModel.find();
+  // allUsers = allUsers.map(u => u.username);
+
   socket.emit('loggedIn', {
-    users: users.map(s => s.username),
-    messages: messages
+    users: users,
+    // messages: messages
   });
 
   //New User joined
-  socket.on("newUser", (username) => {
-    console.log(`${username} connected.`);
-    socket.username = username;
-    socket.room = room;
-    users.push(socket);
-
-    io.emit('userOnline', socket.username)
+  socket.on("newUser", async (user) => {
+    console.log(`${user.username} connected.`);
+    await UserModel.updateOne({username: user.username}, { $set: {socket: socket.id}});
+    const onlineUser = {
+      socket: socket.id,
+      username: user.username,
+    };
+    users.push(onlineUser);
+    io.emit('userOnline', onlineUser)
   });
 
-  //Change Room
-  socket.on("joinRoom", async newRoom => {
-    const roomMessages = await MessageModel.find({ messageTo: newRoom });
-    messages = roomMessages;
-    socket.room = newRoom;
-    io.emit("synchMessages", messages);
+  // //Change Room
+  // socket.on("joinRoom", async newRoom => {
+  //   const roomMessages = await MessageModel.find({ messageTo: newRoom });
+  //   messages = roomMessages;
+  //   socket.room = newRoom;
+  //   io.emit("roomMessages", messages);
+  // });
+  // Private Chat
+  socket.on("joinPM", async (params) => {
+    const pmMessages = await MessageModel.find({
+      $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
+             { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
+    messages = pmMessages;
+    // socket.room = params.messageTo;
+    io.emit("pmMessages", pmMessages);
   });
 
   //Disconnect
@@ -75,11 +84,11 @@ io.on("connection", (socket) => {
   });
 
   //Send message
-  socket.on("message", (msg) => {
+  socket.on("message", (data) => {
     const message = new MessageModel({
-      messageFrom: socket.username,
-      messageTo: socket.room,
-      content: msg,
+      messageFrom: data.messageFrom,
+      messageTo: data.messageTo,
+      content: data.content,
       dateSend: Date.now(),      
     });
 
@@ -88,9 +97,16 @@ io.on("connection", (socket) => {
       
       messages.push(result);
     });
-    
-    //Logged-in users recieve message
-    io.emit("message", message);
+    console.log(data);
+
+    if (data.targetSocket) {
+      //if there is a socket send only to that user
+      io.to(data.targetSocket).emit("message", message);
+      io.to(data.senderSocket).emit("message", message);
+    } else {
+      //Logged-in users recieve message
+      io.emit("message", message);
+    }
   });
 
 });

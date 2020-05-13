@@ -23,6 +23,14 @@ const UserSchema = mongoose.Schema({
     type: Date,
     required: true,
   },
+  socket: {
+    type: String,
+    default: '',
+  },
+  isOnline: {
+    type:Boolean,
+    default: false,
+  },
 });
 
 UserSchema.pre('save', async function(next) {
