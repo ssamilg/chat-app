@@ -168,6 +168,7 @@ export default {
                 v-for="user in onlineUsers"
                 :key="user._id"
                 @click.stop="joinPM(user)"
+                :style="activeRoom === user.username? 'background-color:lightgrey' : ''"
               >
                 <strong>{{ user.username }}</strong>
               </v-list-item>
