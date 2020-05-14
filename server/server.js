@@ -11,7 +11,8 @@ require("dotenv/config");
 const MessageModel = require("./models/MessageModel");
 const UserModel = require("./models/UserModel");
 
-let users = [];
+// let offlineUsers = [];
+let onlineUsers = [];
 let messages = [];
 let room = 'Global';
 
@@ -35,54 +36,54 @@ MessageModel.find({ messageTo: room },(err, result) => {
   messages = result;
 });
 
+// UserModel.find((err, result) => {
+//   if (err) throw err;
 
+//   offlineUsers = result.map(u => u.username);
+// });
 
 io.on("connection", async (socket) => {
-//Logged-in users
-  // let allUsers = await UserModel.find();
-  // allUsers = allUsers.map(u => u.username);
-
-  socket.emit('loggedIn', {
-    users: users,
-    // messages: messages
-  });
+  //Logged-in users
+  let offlineUsers = await UserModel.find();
+  offlineUsers = offlineUsers.map(u => u.username);
+  socket.emit('loggedIn', ({
+    socket: socket.id,
+    offlineUsers: offlineUsers,
+    onlineUsers: onlineUsers,
+  }));
 
   //New User joined
   socket.on("newUser", async (user) => {
     console.log(`${user.username} connected.`);
     await UserModel.updateOne({username: user.username}, { $set: {socket: socket.id}});
-    const onlineUser = {
-      socket: socket.id,
-      username: user.username,
-    };
-    users.push(onlineUser);
-    io.emit('userOnline', onlineUser)
+
+    onlineUsers.push(user);
+    io.emit('userOnline', (user));
   });
 
-  // //Change Room
-  // socket.on("joinRoom", async newRoom => {
-  //   const roomMessages = await MessageModel.find({ messageTo: newRoom });
-  //   messages = roomMessages;
-  //   socket.room = newRoom;
-  //   io.emit("roomMessages", messages);
-  // });
+  //User Disconnect
+  socket.on("disconnect", (user) => {
+    console.log(`${user.username} disconnected.`);
+    io.emit('userLeft', user);
+  });
+
+  // Join Room
+  socket.on('joinRoom', async (data) => {
+    socket.join(data.room);
+    io.to(data.room).emit('userJoined', data);
+    const roomMessages = await MessageModel.find({ messageTo: data.room});
+    io.to(data.roomt).emit("roomMessages", roomMessages);
+  });
+
   // Private Chat
   socket.on("joinPM", async (params) => {
+    socket.join(params.messageTo);
     const pmMessages = await MessageModel.find({
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
-    messages = pmMessages;
-    // socket.room = params.messageTo;
-    io.emit("pmMessages", pmMessages);
+    
+    io.to(params.messageFrom).emit("pmMessages", pmMessages);
   });
-
-  //Disconnect
-  socket.on("disconnect", () => {
-    console.log(`${socket.username} disconnected.`);
-    io.emit('userLeft', socket.username);
-    users.splice(users.indexOf(socket), 1);
-  });
-
   //Send message
   socket.on("message", (data) => {
     const message = new MessageModel({
@@ -91,23 +92,55 @@ io.on("connection", async (socket) => {
       content: data.content,
       dateSend: Date.now(),      
     });
-
     message.save((err, result) => {
       if (err) throw err;
       
       messages.push(result);
     });
-    console.log(data);
 
     if (data.targetSocket) {
       //if there is a socket send only to that user
       io.to(data.targetSocket).emit("message", message);
-      io.to(data.senderSocket).emit("message", message);
-    } else {
+      // io.to(data.senderSocket).emit("message", message);
+    } else if (data.messageTo === 'global') {
       //Logged-in users recieve message
       io.emit("message", message);
     }
   });
+  // // //Change Room
+  // // socket.on("joinRoom", async newRoom => {
+  // //   const roomMessages = await MessageModel.find({ messageTo: newRoom });
+  // //   messages = roomMessages;
+  // //   socket.room = newRoom;
+  // //   io.emit("roomMessages", messages);
+  // // });
+
+
+  // //Send message
+  // socket.on("message", (data) => {
+  //   const message = new MessageModel({
+  //     messageFrom: data.messageFrom,
+  //     messageTo: data.messageTo,
+  //     content: data.content,
+  //     dateSend: Date.now(),      
+  //   });
+
+  //   message.save((err, result) => {
+  //     if (err) throw err;
+      
+  //     messages.push(result);
+  //   });
+  //   console.log(data);
+
+  //   if (data.targetSocket) {
+  //     //if there is a socket send only to that user
+  //     io.to(data.targetSocket).emit("message", message);
+  //     io.to(data.senderSocket).emit("message", message);
+  //   } else {
+  //     //Logged-in users recieve message
+  //     io.emit("message", message);
+  //   }
+  // });
 
 });
 
