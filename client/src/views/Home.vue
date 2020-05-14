@@ -11,14 +11,14 @@ export default {
   data() {
     return {
       socket: socketIO('http://localhost:8000/'),
+      rooms: [],
       message: '',
-      activeRoom: '',
       messages: [],
       onlineUsers: [],
       offlineUsers: [],
-      targetUser: {},
       welcomeDialog: false,
-      rooms: [{ id: 0, name: 'room1' }, { id: 1, name: 'room2' }],
+      createRoomDialog: false,
+      newRoom: {},
     };
   },
   computed: {
@@ -43,8 +43,9 @@ export default {
           username: this.user.username,
           socket: data.socket,
         };
-        this.offlineUsers = data.offlineUsers;
+        this.rooms = data.rooms;
         this.onlineUsers = data.onlineUsers;
+        this.offlineUsers = data.offlineUsers;
         this.setUser(user);
         this.socket.emit('newUser', this.user);
       });
@@ -56,8 +57,8 @@ export default {
 
         this.onlineUsers.forEach((online) => {
           this.offlineUsers.forEach((offline) => {
-            if (online.username === offline) {
-              this.offlineUsers.splice(this.offlineUsers.indexOf(online.username), 1);
+            if (online === offline) {
+              this.offlineUsers.splice(this.offlineUsers.indexOf(online), 1);
             }
           });
         });
@@ -67,13 +68,13 @@ export default {
 
         this.offlineUsers.forEach((offline) => {
           this.onlineUsers.forEach((online) => {
-            if (online.username === offline) {
+            if (online === offline) {
               this.onlineUsers.splice(this.onlineUsers.indexOf(offline), 1);
             }
           });
         });
       });
-      this.socket.on('message', (data) => {
+      this.socket.on('getMessage', (data) => {
         this.messages.push(data);
         this.scrollToEnd();
       });
@@ -81,47 +82,79 @@ export default {
     sendMessage() {
       const data = {
         messageFrom: this.user.username,
-        messageTo: this.activeRoom,
-        targetSocket: this.targetUser.socket,
+        messageTo: this.activeChat,
+        targetSocket: this.activeChat,
         senderSocket: this.user.socket,
         content: this.message,
       };
-      this.socket.emit('message', (data));
+      this.socket.emit('sendMessage', (data));
       // this.messages.push(data);
       this.message = '';
       this.scrollToEnd();
     },
+    createRoom() {
+      this.createRoomDialog = true;
+      this.newRoom.createdBy = this.user.username;
+
+      this.socket.emit('createRoom', this.newRoom);
+      this.socket.on('getRooms', (data) => {
+        console.log(data);
+        this.rooms = data;
+      });
+      this.newRoom = {};
+      this.createRoomDialog = false;
+    },
     joinRoom(room) {
-      this.activeRoom = room.name;
+      console.log('1');
+      this.messages = [];
+      this.setActiveChat(room.title);
       const params = {
-        room: room.name,
-        user: this.user.username,
+        // eslint-disable-next-line
+        roomId: room._id,
+        roomTitle: room.title,
+        username: this.user.username,
       };
       this.socket.emit('joinRoom', (params));
-      this.socket.on('userJoined', (data) => {
-        // eslint-disable-next-line
-        this.messages.push({content: `${data.user} joined to ${data.room}`, messageTo: data.room});
-      });
+      console.log('2');
+
+      // this.socket.on('userJoinedRoom', (data) => {
+      //   // eslint-disable-next-line
+      //   this.messages.push({content: `${data.user} joined to
+      // ${data.room}`, messageTo: data.room});
+      //   this.scrollToEnd();
+      // });
       this.socket.on('roomMessages', (data) => {
+        console.log('3');
         this.messages = data;
       });
+      console.log('4');
       this.scrollToEnd();
     },
-    joinPM(user) {
+    joinPM(targetUser) {
       this.messages = [];
-      this.activeRoom = user.username;
-      this.targetUser = user;
+      this.setActiveChat(targetUser);
       const params = {
         messageFrom: this.user.username,
-        messageTo: this.targetUser.username,
-        socket: this.user.socket,
+        messageTo: this.activeChat,
+        userSocket: this.user.socket,
       };
       this.socket.emit('joinPM', (params));
 
       this.socket.on('pmMessages', (data) => {
         this.messages = data;
       });
-      this.scrollToEnd();
+      setTimeout(() => {
+        this.scrollToEnd();
+      }, 100);
+    },
+    joinGlobal() {
+      this.messages = [];
+      this.setActiveChat('global');
+      this.socket.emit('joinGlobal');
+      this.socket.on('getGlobalMessages', ((data) => {
+        this.messages = data;
+        this.scrollToEnd();
+      }));
     },
     scrollToEnd() {
       setTimeout(() => {
@@ -183,9 +216,13 @@ export default {
 
             <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
               <strong>Rooms</strong>
+              <v-spacer/>
+              <v-btn icon @click="createRoomDialog = true">
+                <v-icon>add</v-icon>
+              </v-btn>
             </v-list-item>
 
-            <v-list-item @click.stop="joinRoom(room)">
+            <v-list-item @click.stop="joinGlobal">
               <v-icon>language</v-icon>
               <strong>Global</strong>
             </v-list-item>
@@ -196,7 +233,7 @@ export default {
               @click.stop="joinRoom(room)"
             >
               <v-icon>group</v-icon>
-              <strong>{{ room.name }}</strong>
+              <strong>{{ room.title }}</strong>
             </v-list-item>
 
             <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
@@ -207,10 +244,10 @@ export default {
               v-for="user in onlineUsers"
               :key="user._id"
               @click.stop="joinPM(user)"
-              :style="activeRoom === user.username? 'background-color:lightgrey' : ''"
+              :style="activeChat === user? 'background-color:lightgrey' : ''"
             >
               <v-icon color="success">person</v-icon>
-              <strong>{{ user.username }}</strong>
+              <strong>{{ user }}</strong>
             </v-list-item>
 
             <v-divider/>
@@ -219,7 +256,7 @@ export default {
               v-for="user in offlineUsers"
               :key="user._id"
               @click.stop="joinPM(user)"
-              :style="activeRoom === user.username? 'background-color:lightgrey' : ''"
+              :style="activeChat === user? 'background-color:lightgrey' : ''"
             >
               <v-icon color="gray">person</v-icon>
               <strong style="color:gray">{{ user }}</strong>
@@ -238,7 +275,7 @@ export default {
           <v-layout style="margin-top:8px;">
               <v-flex md4>
                 <v-layout style="font-size:24px;">
-                  <strong>{{ activeRoom }}</strong>
+                  <strong>{{ activeChat }}</strong>
                 </v-layout>
 
                 <v-layout>
@@ -260,21 +297,21 @@ export default {
           >
             <v-spacer v-if="message.messageFrom === user.username"/>
 
-            <!-- <template v-if="message.messageTo === activeRoom"> -->
-            <v-flex md4 pt-5>
-              <v-card>
-                <v-card-title>
-                  <v-icon>face</v-icon>
-                  {{ message.messageFrom }}
-                </v-card-title>
-                <v-divider/>
+            <template v-if="activeChat !== ''">
+              <v-flex md4 pt-5>
+                <v-card>
+                  <v-card-title>
+                    <v-icon>face</v-icon>
+                    {{ message.messageFrom }}
+                  </v-card-title>
+                  <v-divider/>
 
-                <v-card-text>
-                  {{ message.content }}
-                </v-card-text>
-              </v-card>
-            </v-flex>
-            <!-- </template> -->
+                  <v-card-text>
+                    {{ message.content }}
+                  </v-card-text>
+                </v-card>
+              </v-flex>
+            </template>
 
             <v-spacer v-if="message.messageFrom !== user.username"/>
           </v-layout>
@@ -331,6 +368,52 @@ export default {
         >
           Start Chatting
         </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog
+    v-model="createRoomDialog"
+    max-width="900"
+  >
+    <v-card>
+      <v-card-title>Create A Room</v-card-title>
+      <v-card-text>
+        <v-layout>
+          <v-text-field
+            v-model="newRoom.title"
+            label="Room Title"
+          />
+        </v-layout>
+        <v-layout>
+          <v-textarea
+            v-model="newRoom.description"
+            label="Room Description"
+          />
+        </v-layout>
+      </v-card-text>
+      <v-card-actions>
+        <v-flex md2>
+          <v-btn
+            color="gray"
+            depressed block
+            @click.stop="createRoomDialog = false"
+          >
+            Cancel
+          </v-btn>
+        </v-flex>
+
+        <v-spacer/>
+
+        <v-flex md2>
+          <v-btn
+            class="success"
+            depressed block
+            @click.stop="createRoom"
+          >
+            Create Room
+          </v-btn>
+        </v-flex>
       </v-card-actions>
     </v-card>
   </v-dialog>
