@@ -88,7 +88,10 @@ export default {
         content: this.message,
       };
       this.socket.emit('sendMessage', (data));
-      // this.messages.push(data);
+      if (this.offlineUsers.some((user) => user === this.activeChat)
+      || this.onlineUsers.some((user) => user === this.activeChat)) {
+        this.messages.push(data);
+      }
       this.message = '';
       this.scrollToEnd();
     },
