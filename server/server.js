@@ -12,10 +12,8 @@ const MessageModel = require("./models/MessageModel");
 const UserModel = require("./models/UserModel");
 const RoomModel = require("./models/RoomModel");
 
-// let offlineUsers = [];
 let onlineUsers = [];
 let messages = [];
-// let rooms = [];
 
 //DB Configs
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {

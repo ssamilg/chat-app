@@ -10,7 +10,7 @@ export default {
 
   data() {
     return {
-      socket: socketIO('http://localhost:8000/'),
+      socket: socketIO(process.env.VUE_APP_API_ENDPOINT),
       rooms: [],
       message: '',
       messages: [],
