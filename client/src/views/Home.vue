@@ -1,5 +1,4 @@
 <script>
-// @ is an alias to /src
 import socketIO from 'socket.io-client';
 import { mapGetters, mapActions } from 'vuex';
 
@@ -101,14 +100,12 @@ export default {
 
       this.socket.emit('createRoom', this.newRoom);
       this.socket.on('getRooms', (data) => {
-        console.log(data);
         this.rooms = data;
       });
       this.newRoom = {};
       this.createRoomDialog = false;
     },
     joinRoom(room) {
-      console.log('1');
       this.messages = [];
       this.setActiveChat(room.title);
       const params = {
@@ -118,7 +115,6 @@ export default {
         username: this.user.username,
       };
       this.socket.emit('joinRoom', (params));
-      console.log('2');
 
       // this.socket.on('userJoinedRoom', (data) => {
       //   // eslint-disable-next-line
@@ -127,10 +123,8 @@ export default {
       //   this.scrollToEnd();
       // });
       this.socket.on('roomMessages', (data) => {
-        console.log('3');
         this.messages = data;
       });
-      console.log('4');
       this.scrollToEnd();
     },
     joinPM(targetUser) {
@@ -171,12 +165,6 @@ export default {
 </script>
 
 <template>
-  <!-- <div>
-    user:  {{ this.user.username }}<br>
-    socket:  {{ this.user.socket }}<br>
-    offlineUsers:  {{ this.offlineUsers }}<br>
-    onlineUsers:  {{ this.onlineUsers }}<br>
-  </div> -->
   <div class="body">
   <!-- App bar -->
   <v-layout>
@@ -208,7 +196,6 @@ export default {
         <v-spacer/>
         <v-flex md6>
           <strong>Username: {{ user.username }}</strong><br>
-          <strong>Socket: {{ user.socket }}</strong>
         </v-flex>
         <v-spacer/>
       </v-layout>
@@ -216,7 +203,6 @@ export default {
       <v-layout>
         <v-flex>
           <v-list>
-
             <v-list-item style="margin-top:16px;border-bottom:1px solid lightgrey">
               <strong>Rooms</strong>
               <v-spacer/>
