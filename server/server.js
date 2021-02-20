@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const moment = require("moment");
 require("dotenv/config");
 
 const MessageModel = require("./models/MessageModel");
@@ -29,13 +28,7 @@ app.use(cors());
 app.use('/users', require('./routes/UserRoute'));
 app.use('/chat', require('./routes/MessageRoute'));
 
-// MessageModel.find({ messageTo: room },(err, result) => {
-//   if (err) throw err;
-
-//   messages = result;
-// });
-
-io.on("connection", async (socket) => {
+io.on("connection", async (socket) => {  
   //Logged-in users
   let offlineUsers = await UserModel.find();
   const rooms = await RoomModel.find();
