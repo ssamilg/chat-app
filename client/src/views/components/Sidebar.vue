@@ -1,4 +1,6 @@
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'Sidebar',
   data() {
@@ -26,11 +28,12 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['setActiveChatList']),
     selectList(item) {
       this.selectedItemId = item.id;
       this.mini = true;
 
-      this.$emit('changeList', this.selectedItemId);
+      this.setActiveChatList(item.id);
     },
   },
 };
@@ -46,13 +49,12 @@ export default {
       hide-overlay
       permanent
       stateless
-      absolute
       dark
     >
       <v-list
+        class="pa-0"
         dense
         nav
-        class="pa-0"
       >
         <v-list-item @click="mini = !mini">
           <v-list-item-avatar>
@@ -69,7 +71,7 @@ export default {
         <v-list-item
           v-for="item in listItems"
           :key="item.id"
-          :class="selectedItemId === item.id? 'selected-drawer-item':iconPadding"
+          :class="selectedItemId === item.id? 'selected-drawer-item': ''"
           class="drawer-item"
           @click="selectList(item)"
         >
@@ -88,6 +90,8 @@ export default {
 
 <style lang="scss" scoped>
 #chat-sidebar{
+  height: 100%;
+
   .navigation-drawer {
     max-width: 25vh;
   }
