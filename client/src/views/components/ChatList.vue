@@ -1,5 +1,5 @@
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'ChatList',
@@ -25,6 +25,22 @@ export default {
   },
   computed: {
     ...mapGetters(['activeChatList']),
+    listHeader() {
+      const header = {
+        title: 'Choose one to chat !',
+        icon: 'mdi-chat',
+      };
+
+      if (this.activeChatList === 1) {
+        header.title = 'Rooms';
+        header.icon = 'mdi-account-group';
+      } else if (this.activeChatList === 2) {
+        header.title = 'Peoples';
+        header.icon = 'mdi-account';
+      }
+
+      return header;
+    },
   },
   watch: {
     activeChatList() {
@@ -37,13 +53,10 @@ export default {
       }
     },
   },
-  mounted() {
-    console.log(this.rooms);
-    console.log(this.onlineUsers);
-    console.log(this.offlineUsers);
-  },
   methods: {
+    ...mapActions(['setActiveChat']),
     selectChat(item) {
+      this.setActiveChat(item);
       this.selectedChat = item.title;
     },
     mergeUsers() {
@@ -57,7 +70,17 @@ export default {
 </script>
 
 <template>
-  <v-list id="chat-list">
+  <v-list id="chat-list" class="pa-0">
+    <v-list-item class="list-header">
+      <v-layout align-center>
+        <v-icon color="white" class="pr-1">
+          {{ listHeader.icon }}
+        </v-icon>
+
+        {{ listHeader.title }}
+      </v-layout>
+    </v-list-item>
+
     <v-list-item
       v-for="item in selectedList"
       :key="item.id"
@@ -89,8 +112,13 @@ export default {
   height: 100vh;
   overflow: auto;
 
+  .list-header {
+    background-color: #FB8C00;
+    color: white !important;
+  }
+
   .selected-item {
-    background-color: #FF9800;
+    background-color: #FFCC80;
   }
 
 }
