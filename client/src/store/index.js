@@ -9,7 +9,7 @@ export default new Vuex.Store({
     user: {
       username: '',
     },
-    activeChat: '',
+    activeChat: {},
     activeChatList: -1,
   },
   getters: {
