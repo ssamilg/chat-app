@@ -16,7 +16,7 @@ export default {
         },
         {
           id: 1,
-          icon: 'group',
+          icon: 'mdi-account-group',
           title: 'Rooms',
         },
         {
