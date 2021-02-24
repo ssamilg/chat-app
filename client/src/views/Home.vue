@@ -3,12 +3,14 @@ import socketIO from 'socket.io-client';
 import { mapGetters, mapActions } from 'vuex';
 import ChatList from './components/ChatList.vue';
 import Sidebar from './components/Sidebar.vue';
+import ChatConversation from './components/ChatConversation.vue';
 
 export default {
   name: 'Home',
   components: {
     Sidebar,
     ChatList,
+    ChatConversation,
   },
   data() {
     return {
@@ -28,15 +30,15 @@ export default {
     ...mapGetters(['user', 'activeChat', 'activeChatList']),
   },
   created() {
-    // if (this.user.username === '') this.$router.push('/Login');
+    if (this.user.username === '') this.$router.push('/Login');
   },
   mounted() {
     this.welcomeDialog = true;
     this.scrollToEnd();
 
-    // if (this.user.username !== '') {
-    this.joinServer();
-    // }
+    if (this.user.username !== '') {
+      this.joinServer();
+    }
   },
   methods: {
     ...mapActions(['setUser', 'setActiveChat']),
@@ -171,11 +173,11 @@ export default {
 <template>
   <div id="main-wrapper">
     <v-layout fill-height>
-      <v-flex class="full-height" shrink>
+      <v-flex shrink>
         <sidebar/>
       </v-flex>
 
-      <v-flex xs12 sm3 md3 lg3 class="full-height">
+      <v-flex v-if="activeChatList !== 0" xs12 sm3 md3 lg3>
         <chat-list
           :rooms="rooms"
           :onlineUsers="onlineUsers"
@@ -183,8 +185,10 @@ export default {
         />
       </v-flex>
 
-      <v-flex>
-        convo screen
+      <v-flex xs12 sm8 md8 lg8>
+        <chat-conversation
+          :messages="messages"
+        />
       </v-flex>
     </v-layout>
     <!-- <v-layout>
