@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const moment = require("moment");
 require("dotenv/config");
 
 const MessageModel = require("./models/MessageModel");
@@ -29,32 +28,28 @@ app.use(cors());
 app.use('/users', require('./routes/UserRoute'));
 app.use('/chat', require('./routes/MessageRoute'));
 
-// MessageModel.find({ messageTo: room },(err, result) => {
-//   if (err) throw err;
-
-//   messages = result;
-// });
-
-io.on("connection", async (socket) => {
+io.on("connection", async (socket) => {  
   //Logged-in users
-  let offlineUsers = await UserModel.find();
+  // let users = await UserModel.find();
+  UserModel.find().select('username + isOnline + socket + name + surname + dateCreated')
+    .then((data) => {
+      users = data;
+    });
   const rooms = await RoomModel.find();
  
-  offlineUsers = offlineUsers.map(u => u.username);
   socket.emit('loggedIn', ({
     socket: socket.id,
-    offlineUsers: offlineUsers,
-    onlineUsers: onlineUsers,
-    rooms: rooms,
+    users,
+    rooms,
   }));
 
   //New User joined
   socket.on("newUser", async (user) => {
+    console.log(user);
     console.log(`${user.username} connected.`);
     await UserModel.updateOne({username: user.username}, { $set: {socket: socket.id}});
-
-    onlineUsers.push(user.username);
-    io.emit('userOnline', (user.username));
+    console.log(user);
+    io.emit('userOnline', (user));
   });
 
   //User Disconnect
