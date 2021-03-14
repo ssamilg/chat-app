@@ -45,7 +45,11 @@ export default new Vuex.Store({
       commit('setActiveChatList', value);
     },
     login(_, params) {
-      return axios.post('/users/login', params);
+      return axios.post('/users/login', params)
+        .then(({ data }) => {
+          localStorage.setItem('chat-auth-token', data.token);
+          localStorage.setItem('chat-user-id', data.userId);
+        });
     },
     signup(_, params) {
       return axios.post('/users/signUp', params);
