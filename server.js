@@ -7,13 +7,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv/config");
 
-const MessageModel = require("./models/MessageModel");
-const UserModel = require("./models/UserModel");
-const RoomModel = require("./models/RoomModel");
-
-let onlineUsers = [];
-let messages = [];
-
 //DB Configs
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
   console.log('db connected');
@@ -27,6 +20,31 @@ app.use(cors());
 //Routes
 app.use('/users', require('./routes/UserRoute'));
 app.use('/chat', require('./routes/MessageRoute'));
+
+// Models
+const MessageModel = require("./models/MessageModel");
+const UserModel = require("./models/UserModel");
+const RoomModel = require("./models/RoomModel");
+// const { users } = require("./controllers/UserController");
+
+let onlineUsers = [];
+let messages = [];
+let users = [];
+
+const toggleUserIsOnline = (user) => {
+  if (user) {
+    const foundUser = users.find((u) => u._id.toString() === user._id.toString());
+    const index = users.indexOf(foundUser);
+  
+    if (index !== -1) {
+      users[index].isOnline = !users[index].isOnline;
+    } else {
+      console.log('User Error !');
+    }
+  } else {
+    console.log('Unvalid user !');
+  }
+};
 
 io.on("connection", async (socket) => {  
   //Logged-in users
@@ -45,20 +63,25 @@ io.on("connection", async (socket) => {
 
   //New User joined
   socket.on("newUser", async (user) => {
-    console.log(user);
     console.log(`${user.username} connected.`);
-    await UserModel.updateOne({username: user.username}, { $set: {socket: socket.id}});
-    console.log(user);
-    io.emit('userOnline', (user));
+
+    await UserModel.updateOne({_id: user._id}, { $set: {socket: socket.id, isOnline: true }});
+
+    toggleUserIsOnline(user);
+    io.emit('usersChanged', (users));
   });
 
   //User Disconnect
   socket.on("disconnect", async (err) => {
     const user = await UserModel.findOne({socket: socket.id});
+    console.log(user);
+    await UserModel.updateOne({_id: user._id}, { $set: {socket: null, isOnline: false }});
+
     if(user) {
       console.log(`${user.username} disconnected.`);
-      onlineUsers.splice(onlineUsers.indexOf(user.username), 1);
-      io.emit('userLeft', (user.username));
+
+      toggleUserIsOnline(user);
+      io.emit('usersChanged', (users));
     }
   });
 
