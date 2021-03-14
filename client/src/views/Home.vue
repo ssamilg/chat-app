@@ -15,9 +15,11 @@ export default {
   data() {
     return {
       socket: socketIO(process.env.VUE_APP_API_ENDPOINT),
+      userId: null,
       rooms: [],
       message: '',
       messages: [],
+      users: [],
       onlineUsers: [],
       offlineUsers: [],
       welcomeDialog: false,
@@ -30,13 +32,14 @@ export default {
     ...mapGetters(['user', 'activeChat', 'activeChatList']),
   },
   created() {
-    if (this.user.username === '') this.$router.push('/Login');
+    this.userId = localStorage.getItem('chat-user-id');
+    if (!this.userId) this.$router.push('/Login');
   },
   mounted() {
     this.welcomeDialog = true;
     this.scrollToEnd();
 
-    if (this.user.username !== '') {
+    if (this.userId) {
       this.joinServer();
     }
   },
@@ -44,13 +47,11 @@ export default {
     ...mapActions(['setUser', 'setActiveChat']),
     joinServer() {
       this.socket.on('loggedIn', (data) => {
-        const user = {
-          username: this.user.username,
-          socket: data.socket,
-        };
+        this.users = data.users;
         this.rooms = data.rooms;
-        this.onlineUsers = data.onlineUsers;
-        this.offlineUsers = data.offlineUsers;
+
+        const user = this.users.find((u) => u._id === this.userId);
+
         this.setUser(user);
         this.socket.emit('newUser', this.user);
       });
@@ -58,26 +59,18 @@ export default {
     },
     listen() {
       this.socket.on('userOnline', (user) => {
-        this.onlineUsers.push(user);
+        console.log(user);
+        const index = this.users.indexOf(user);
 
-        this.onlineUsers.forEach((online) => {
-          this.offlineUsers.forEach((offline) => {
-            if (online === offline) {
-              this.offlineUsers.splice(this.offlineUsers.indexOf(online), 1);
-            }
-          });
-        });
+        if (index !== -1) {
+          this.users[index].isOnline = true;
+        } else {
+          this.users.push(user);
+        }
       });
       this.socket.on('userLeft', (user) => {
-        this.offlineUsers.push(user);
-
-        this.offlineUsers.forEach((offline) => {
-          this.onlineUsers.forEach((online) => {
-            if (online === offline) {
-              this.onlineUsers.splice(this.onlineUsers.indexOf(offline), 1);
-            }
-          });
-        });
+        const index = this.users.indexOf(user);
+        this.users[index].isOnline = false;
       });
       this.socket.on('getMessage', (data) => {
         this.messages.push(data);
@@ -179,9 +172,7 @@ export default {
 
       <v-flex v-if="activeChatList !== 0" xs12 sm3 md3 lg3>
         <chat-list
-          :rooms="rooms"
-          :onlineUsers="onlineUsers"
-          :offlineUsers="offlineUsers"
+          :users="users"
         />
       </v-flex>
 
