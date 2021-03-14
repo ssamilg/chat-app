@@ -24,7 +24,7 @@ router.route('/')
 
 router.get('/:username', async (req, res) => {
   try {
-    const user = await UserModel.find({ username:req.params.username });
+    const user = await UserModel.find({ username: req.params.username });
     res.json({ 
       user: {
         username: user[0].username,
