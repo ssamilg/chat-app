@@ -4,15 +4,7 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
   name: 'ChatList',
   props: {
-    rooms: {
-      type: Array,
-      required: true,
-    },
-    onlineUsers: {
-      type: Array,
-      required: true,
-    },
-    offlineUsers: {
+    users: {
       type: Array,
       required: true,
     },
@@ -47,7 +39,7 @@ export default {
       if (this.activeChatList === 1) {
         this.selectedList = this.rooms;
       } else if (this.activeChatList === 2) {
-        this.selectedList = this.mergeUsers();
+        this.selectedList = this.users;
       } else {
         this.selectedList = [];
       }
@@ -57,13 +49,7 @@ export default {
     ...mapActions(['setActiveChat']),
     selectChat(item) {
       this.setActiveChat(item);
-      this.selectedChat = item.title;
-    },
-    mergeUsers() {
-      const users = this.onlineUsers.map((u) => ({ title: u, isOnline: true }));
-      const offlineUsers = this.offlineUsers.map((u) => ({ title: u, isOnline: false }));
-
-      return users.concat(offlineUsers);
+      this.selectedChat = item._id;
     },
   },
 };
@@ -84,7 +70,7 @@ export default {
     <v-list-item
       v-for="item in selectedList"
       :key="item.id"
-      :class="selectedChat === item.title ? 'selected-item' : ''"
+      :class="selectedChat === item._id ? 'selected-item' : ''"
       @click="selectChat(item)"
     >
       <template v-if="activeChatList === 1">
@@ -101,7 +87,8 @@ export default {
         </v-icon>
       </template>
 
-      {{ item.title }}
+      {{ item.username }}
+      {{ item.isOnline }}
     </v-list-item>
   </v-list>
 </template>
