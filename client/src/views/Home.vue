@@ -58,20 +58,11 @@ export default {
       this.listen();
     },
     listen() {
-      this.socket.on('userOnline', (user) => {
-        console.log(user);
-        const index = this.users.indexOf(user);
+      this.socket.on('usersChanged', (users) => {
+        console.log(users);
+        this.users = users;
+      });
 
-        if (index !== -1) {
-          this.users[index].isOnline = true;
-        } else {
-          this.users.push(user);
-        }
-      });
-      this.socket.on('userLeft', (user) => {
-        const index = this.users.indexOf(user);
-        this.users[index].isOnline = false;
-      });
       this.socket.on('getMessage', (data) => {
         this.messages.push(data);
         this.scrollToEnd();
