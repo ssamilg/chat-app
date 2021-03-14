@@ -35,6 +35,9 @@ export default {
     },
   },
   watch: {
+    users() {
+      this.selectedList = this.users;
+    },
     activeChatList() {
       if (this.activeChatList === 1) {
         this.selectedList = this.rooms;

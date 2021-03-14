@@ -59,7 +59,6 @@ export default {
     },
     listen() {
       this.socket.on('usersChanged', (users) => {
-        console.log(users);
         this.users = users;
       });
 
