@@ -12,18 +12,11 @@ export default {
   computed: {
   },
   methods: {
-    ...mapActions(['setUser', 'login', 'fetchUserSocket']),
+    ...mapActions(['setUser', 'login']),
     enter() {
       this.login(this.formData)
         .then(() => {
-          this.fetchUserSocket(this.formData.username)
-            .then((response) => {
-              this.formData = response.data.user;
-            })
-            .finally(() => {
-              this.setUser(this.formData);
-              this.$router.push('/');
-            });
+          this.$router.push('/');
         })
         .catch((err) => {
           console.log(err);

@@ -9,7 +9,8 @@ export default new Vuex.Store({
     user: {
       username: '',
     },
-    activeChat: '',
+    activeChat: {},
+    activeChatList: -1,
   },
   getters: {
     user(state) {
@@ -17,6 +18,9 @@ export default new Vuex.Store({
     },
     activeChat(state) {
       return state.activeChat;
+    },
+    activeChatList(state) {
+      return state.activeChatList;
     },
   },
   mutations: {
@@ -26,6 +30,9 @@ export default new Vuex.Store({
     setActiveChat(state, value) {
       state.activeChat = value;
     },
+    setActiveChatList(state, value) {
+      state.activeChatList = value;
+    },
   },
   actions: {
     setUser({ commit }, value) {
@@ -34,8 +41,15 @@ export default new Vuex.Store({
     setActiveChat({ commit }, value) {
       commit('setActiveChat', value);
     },
+    setActiveChatList({ commit }, value) {
+      commit('setActiveChatList', value);
+    },
     login(_, params) {
-      return axios.post('/users/login', params);
+      return axios.post('/users/login', params)
+        .then(({ data }) => {
+          localStorage.setItem('chat-auth-token', data.token);
+          localStorage.setItem('chat-user-id', data.userId);
+        });
     },
     signup(_, params) {
       return axios.post('/users/signUp', params);
