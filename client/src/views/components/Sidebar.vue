@@ -92,6 +92,11 @@ export default {
 #chat-sidebar{
   height: 100%;
 
+  .v-list .v-list-item {
+    height: 48px;
+    margin-bottom: 0;
+  }
+
   .navigation-drawer {
     max-width: 25vh;
   }
