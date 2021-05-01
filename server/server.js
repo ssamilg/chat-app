@@ -1,20 +1,27 @@
-const app = require("express")();
+const express = require("express");
+const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const mongoose = require("mongoose");
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv/config");
 
 //DB Configs
-mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+mongoose.connect(process.env.DB_CONNECTION, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+}, () => {
   console.log('db connected');
 });
 
 //Middlewares
 app.use(morgan('dev'));
-app.use(bodyParser.json());
+app.use(express.json());
+// app.use(express.urlencoded({
+//   extended: true
+// }));
 app.use(cors());
 
 //Routes
@@ -46,7 +53,7 @@ const toggleUserIsOnline = (user) => {
   }
 };
 
-io.on("connection", async (socket) => {  
+io.on("connection", async (socket) => {
   //Logged-in users
   // let users = await UserModel.find();
   UserModel.find().select('username + isOnline + socket + name + surname + dateCreated')
