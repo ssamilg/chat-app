@@ -31,6 +31,12 @@ export default {
   computed: {
     ...mapGetters(['user', 'activeChat', 'activeChatList']),
   },
+  watch: {
+    activeChat(newVal) {
+      console.log(newVal);
+      this.joinPM(newVal);
+    },
+  },
   created() {
     this.userId = localStorage.getItem('chat-user-id');
     if (!this.userId) this.$router.push('/Login');
@@ -44,7 +50,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUser', 'setActiveChat']),
+    ...mapActions(['setUser', 'setActiveChat', 'setActiveConversation']),
     joinServer() {
       this.socket.on('loggedIn', (data) => {
         this.users = data.users;
@@ -96,7 +102,8 @@ export default {
     },
     joinRoom(room) {
       this.messages = [];
-      this.setActiveChat(room.title);
+      // this.setActiveChat(room.title);
+
       const params = {
         // eslint-disable-next-line
         roomId: room._id,
@@ -118,16 +125,22 @@ export default {
     },
     joinPM(targetUser) {
       this.messages = [];
-      this.setActiveChat(targetUser);
+      // this.setActiveChat(targetUser);
+
       const params = {
         messageFrom: this.user.username,
-        messageTo: this.activeChat,
+        messageTo: targetUser.username,
         userSocket: this.user.socket,
       };
       this.socket.emit('joinPM', (params));
 
       this.socket.on('pmMessages', (data) => {
-        this.messages = data;
+        const conversation = {
+          title: targetUser.username,
+          messages: data,
+        };
+
+        this.setActiveConversation(conversation);
       });
       setTimeout(() => {
         this.scrollToEnd();
@@ -172,6 +185,7 @@ export default {
         />
       </v-flex>
     </v-layout>
+
     <!-- <v-layout>
       <v-flex>
         <v-toolbar
