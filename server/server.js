@@ -78,7 +78,6 @@ io.on("connection", async (socket) => {
   //User Disconnect
   socket.on("disconnect", async (err) => {
     const user = await UserModel.findOne({socket: socket.id});
-    console.log(user);
     await UserModel.updateOne({_id: user._id}, { $set: {socket: null, isOnline: false }});
 
     if(user) {
@@ -131,10 +130,13 @@ io.on("connection", async (socket) => {
 
   // Private Chat
   socket.on("joinPM", async (params) => {
+    console.log('Joined to pm');
     const pmMessages = await MessageModel.find({
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
-
+    
+    console.log(pmMessages.length);
+    console.log(params);
     io.to(params.userSocket).emit("pmMessages", pmMessages);
   });
 
