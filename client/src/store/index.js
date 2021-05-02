@@ -11,6 +11,7 @@ export default new Vuex.Store({
     },
     activeChat: {},
     activeChatList: -1,
+    activeConversation: {},
   },
   getters: {
     user(state) {
@@ -21,6 +22,9 @@ export default new Vuex.Store({
     },
     activeChatList(state) {
       return state.activeChatList;
+    },
+    activeConversation(state) {
+      return state.activeConversation;
     },
   },
   mutations: {
@@ -33,6 +37,9 @@ export default new Vuex.Store({
     setActiveChatList(state, value) {
       state.activeChatList = value;
     },
+    setActiveConversation(state, value) {
+      state.activeConversation = value;
+    },
   },
   actions: {
     setUser({ commit }, value) {
@@ -43,6 +50,9 @@ export default new Vuex.Store({
     },
     setActiveChatList({ commit }, value) {
       commit('setActiveChatList', value);
+    },
+    setActiveConversation({ commit }, value) {
+      commit('setActiveConversation', value);
     },
     login(_, params) {
       return axios.post('/users/login', params)
