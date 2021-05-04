@@ -104,6 +104,8 @@ export default {
 
 <style lang="scss">
 #message-bubble-wrapper {
+  margin-top: 2px;
+
   &:hover {
     .message-time {
       display: block;
