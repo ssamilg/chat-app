@@ -9,11 +9,11 @@ export default {
       mini: true,
       selectedItemId: -1,
       listItems: [
-        {
-          id: 0,
-          icon: 'language',
-          title: 'Global',
-        },
+        // {
+        //   id: 0,
+        //   icon: 'language',
+        //   title: 'Global',
+        // },
         {
           id: 1,
           icon: 'mdi-account-group',
