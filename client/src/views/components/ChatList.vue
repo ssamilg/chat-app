@@ -109,8 +109,8 @@ export default {
   .selected-item {
     background-color: #FFCC80;
   }
-
 }
+
 ::-webkit-scrollbar {
   width: 6px !important;
 }

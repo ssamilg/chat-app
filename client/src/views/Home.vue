@@ -139,7 +139,7 @@ export default {
           title: targetUser.username,
           messages: data,
         };
-        console.log('data');
+        // console.log('data');
         console.log(data);
 
         this.setActiveConversation(conversation);
