@@ -1,8 +1,12 @@
 <script>
 import { mapGetters } from 'vuex';
+import MessageBubble from './MessageBubble.vue';
 
 export default {
   name: 'ChatConversation',
+  components: {
+    MessageBubble,
+  },
   props: {
     messages: {
       type: Array,
@@ -13,9 +17,7 @@ export default {
     ...mapGetters(['user', 'activeChat', 'activeConversation']),
   },
   methods: {
-    isSentByMe(message) {
-      return message.messageFrom === this.user.username;
-    },
+
   },
 };
 </script>
@@ -35,25 +37,16 @@ export default {
 
     <v-layout class="conversation-content">
       <v-flex>
-        <v-layout
+        <div
           v-for="message in activeConversation.messages"
           :key="message.id"
           class="pt-5"
         >
-          <v-flex>
-            <v-layout
-              :reverse="isSentByMe(message)"
-            >
-              {{ message.messageFrom }}
-            </v-layout>
-
-            <v-layout
-              :reverse="isSentByMe(message)"
-            >
-              {{ message.content }}
-            </v-layout>
-          </v-flex>
-        </v-layout>
+          <message-bubble
+            :message="message"
+            :is-room-message="false"
+          />
+        </div>
       </v-flex>
     </v-layout>
   </div>
