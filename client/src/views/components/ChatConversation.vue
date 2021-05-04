@@ -69,7 +69,7 @@ export default {
         />
       </v-flex>
 
-      <v-flex md1>
+      <v-flex md1 mr-2>
         <v-btn icon class="send-btn mx-2" color="#673AB7">
           <v-icon>mdi-send</v-icon>
         </v-btn>
@@ -80,7 +80,7 @@ export default {
 
 <style lang="scss">
 #chat-conversation {
-  height: 100vh;
+  height: 100%;
   background-color: #F4F0F9;
 
   .conversation {

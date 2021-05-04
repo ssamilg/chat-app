@@ -91,7 +91,6 @@ export default {
       </template>
 
       {{ item.username }}
-      {{ item.isOnline }}
     </v-list-item>
   </v-list>
 </template>
@@ -99,7 +98,7 @@ export default {
 <style lang="scss">
 #chat-list {
   background-color: #FFF3E0;
-  height: 100vh;
+  height: 100%;
   overflow: auto;
 
   .list-header {

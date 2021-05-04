@@ -139,6 +139,8 @@ export default {
           title: targetUser.username,
           messages: data,
         };
+        console.log('data');
+        console.log(data);
 
         this.setActiveConversation(conversation);
       });
@@ -168,22 +170,26 @@ export default {
 
 <template>
   <div id="main-wrapper">
-    <v-layout fill-height>
-      <v-flex shrink>
-        <sidebar/>
-      </v-flex>
+    <v-layout align-center justify-center fill-height>
+      <div class="content-frame">
+        <v-layout fill-height>
+          <v-flex shrink>
+            <sidebar/>
+          </v-flex>
 
-      <v-flex v-if="activeChatList !== 0" xs12 sm3 md3 lg3>
-        <chat-list
-          :users="users"
-        />
-      </v-flex>
+          <v-flex v-if="activeChatList !== 0" xs12 sm3 md3 lg3>
+            <chat-list
+              :users="users"
+            />
+          </v-flex>
 
-      <v-flex xs12 sm8 md8 lg8>
-        <chat-conversation
-          :messages="messages"
-        />
-      </v-flex>
+          <v-flex xs12 sm9 md9 lg9>
+            <chat-conversation
+              :messages="messages"
+            />
+          </v-flex>
+        </v-layout>
+      </div>
     </v-layout>
 
     <!-- <v-layout>
@@ -429,6 +435,19 @@ export default {
 <style lang="scss" scoped>
 #main-wrapper {
   height: 100%;
+  // background-image: url('https://i.pinimg.com/originals/80/e9/28/80e92848127b480fc9db643d58fbfbf4.jpg');
+  // background-size: cover;
+  // background: linear-gradient(90deg,
+  // rgba(197,202,233,1) 0%, rgba(232,234,246,1) 40%, rgba(255,243,224,1) 60%,
+  // rgba(255,224,178,1) 100%);
+  background-color: rgba($color: #4DB6AC, $alpha: .3);
+
+  .content-frame {
+    height: 90vh;
+    width: 155vh;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 }
 
 .body {
