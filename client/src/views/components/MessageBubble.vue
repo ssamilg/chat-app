@@ -55,7 +55,7 @@ export default {
       const messageDate = new Date(this.message.dateSend);
 
       if (prevMessageDate.toDateString() !== messageDate.toDateString()) {
-        displayingMessageDate = `${messageDate.getDate()}.${messageDate.getMonth()}.${messageDate.getFullYear()}`;
+        displayingMessageDate = `${messageDate.getDate()}.${messageDate.getMonth() + 1}.${messageDate.getFullYear()}`;
       }
 
       return displayingMessageDate;
