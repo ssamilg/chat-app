@@ -16,10 +16,6 @@ export default {
       type: Object,
       required: true,
     },
-    isRoomMessage: {
-      type: Boolean,
-      required: true,
-    },
   },
   computed: {
     ...mapGetters(['user']),
@@ -53,15 +49,36 @@ export default {
 
       return `${messageDate.getHours()}.${messageDate.getMinutes()}`;
     },
+    messageDate() {
+      let displayingMessageDate = false;
+      const prevMessageDate = new Date(this.prevMessage.dateSend);
+      const messageDate = new Date(this.message.dateSend);
+
+      if (prevMessageDate.toDateString() !== messageDate.toDateString()) {
+        displayingMessageDate = `${messageDate.getDate()}.${messageDate.getMonth()}.${messageDate.getFullYear()}`;
+      }
+
+      return displayingMessageDate;
+    },
   },
 };
 </script>
 
 <template>
   <div id="message-bubble-wrapper">
+    <v-layout v-if="messageDate" justify-center align-center>
+      <v-flex class="message-date"/>
+
+      <v-flex shrink>
+        {{ messageDate }}
+      </v-flex>
+
+      <v-flex class="message-date"/>
+    </v-layout>
+
     <v-layout align-center :reverse="isSentByMe">
       <v-flex shrink :class="bubbleClass">
-        <v-layout v-if="!isSequel" :class="isSentByMe ? 'justify-end' : ''">
+        <v-layout v-if="!isSequel || messageDate" :class="isSentByMe ? 'justify-end' : ''">
           <v-flex shrink class="message-sender">
             {{ message.messageFrom }}
           </v-flex>
@@ -104,6 +121,12 @@ export default {
 
   .message-time {
     display: none;
+  }
+
+  .message-date {
+    // padding: 4px;
+    // border-radius: 12px;
+    border-top: 1px solid #D1C4E9;
   }
 
   .sender {
