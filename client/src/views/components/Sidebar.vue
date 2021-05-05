@@ -1,5 +1,5 @@
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Sidebar',
@@ -26,6 +26,9 @@ export default {
         },
       ],
     };
+  },
+  computed: {
+    ...mapGetters(['user']),
   },
   methods: {
     ...mapActions(['setActiveChatList']),
@@ -68,6 +71,22 @@ export default {
           </v-list-item-content>
         </v-list-item>
 
+        <template v-if="!mini">
+          <v-list-item class="my-3">
+            <v-list-item-content>
+              <v-icon size="72">
+                person
+              </v-icon>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content class="justify-center user-title">
+              {{ user.username }}
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+
         <v-list-item
           v-for="item in listItems"
           :key="item.id"
@@ -103,6 +122,16 @@ export default {
 
   .selected-drawer-item {
     background-color: darkslategrey !important;
+  }
+
+  .user-title {
+    background-color: white !important;
+    color: teal !important;
+    min-height: 48px;
+
+    .v-list--nav .v-list-item {
+      padding: 0 !important;
+    }
   }
 
   .drawer-item {
