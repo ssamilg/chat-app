@@ -109,12 +109,9 @@ export default {
       });
     },
     joinPM(targetUser) {
-      this.messages = [];
-      // this.setActiveChat(targetUser);
-
       const params = {
-        messageFrom: this.user.username,
-        messageTo: targetUser.username,
+        messageFrom: this.user._id,
+        messageTo: targetUser._id,
         userSocket: this.user.socket,
       };
       this.socket.emit('joinPM', (params));
