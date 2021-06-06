@@ -46,7 +46,7 @@ const toggleUserIsOnline = (user) => {
       console.log('User Error !');
     }
   } else {
-    console.log('Unvalid user !');
+    console.log('Invalid user !');
   }
 };
 
