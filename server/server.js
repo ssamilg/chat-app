@@ -50,6 +50,18 @@ const toggleUserIsOnline = (user) => {
   }
 };
 
+const fetchMessages = async (messageFrom, messageTo) => {
+  const messages = await MessageModel.find({
+    $or: [
+      { messageTo: messageTo, messageFrom: messageFrom },
+      { messageTo: messageFrom, messageFrom: messageTo },
+    ],
+  });
+
+  console.log('messages');
+  console.log(messages);
+};
+
 io.on("connection", async (socket) => {
   //Logged-in users
   // let users = await UserModel.find();
@@ -134,6 +146,9 @@ io.on("connection", async (socket) => {
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
     
+    console.log('params');      
+    console.log(params);      
+    fetchMessages(params.messageFrom, params.messageTo);
     io.to(params.userSocket).emit("pmMessages", pmMessages);
   });
 
@@ -145,9 +160,7 @@ io.on("connection", async (socket) => {
   //Send message
   socket.on("sendMessage", async (data) => {
     const message = new MessageModel({
-      messageFrom: data.messageFrom,
-      messageTo: data.messageTo,
-      content: data.content,
+      ...data,
       dateSend: Date.now(),      
     });
 
@@ -157,14 +170,16 @@ io.on("connection", async (socket) => {
       messages.push(result);
     });
 
-    let socketId = await UserModel.findOne({ username: data.messageTo });
+    let socketId = await UserModel.findOne({ _id: data.messageTo });
     
     if (socketId) {
       socketId = socketId.socket;
+
       io.to(socketId).emit("getMessage", message);
       console.log('pm');      
-      } else {
+    } else {
       const room = await RoomModel.findOne({ title: data.messageTo });
+
       if (room) {
         io.to(room._id).emit('getMessage', message);
         console.log('room');      
