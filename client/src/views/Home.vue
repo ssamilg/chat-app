@@ -33,7 +33,6 @@ export default {
   },
   watch: {
     activeChat(newVal) {
-      console.log(newVal);
       this.joinPM(newVal);
     },
   },
@@ -56,7 +55,9 @@ export default {
         this.users = data.users;
         this.rooms = data.rooms;
 
+        // TODO consult this to ibo
         const user = this.users.find((u) => u._id === this.userId);
+        user.socket = data.socket;
 
         this.setUser(user);
         this.socket.emit('newUser', this.user);
@@ -139,11 +140,10 @@ export default {
           title: targetUser.username,
           messages: data,
         };
-        // console.log('data');
-        console.log(data);
 
         this.setActiveConversation(conversation);
       });
+
       setTimeout(() => {
         this.scrollToEnd();
       }, 100);

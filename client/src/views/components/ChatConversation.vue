@@ -21,6 +21,12 @@ export default {
   computed: {
     ...mapGetters(['user', 'activeChat', 'activeConversation']),
   },
+  watch: {
+    activeConversation(newVal) {
+      console.log('newVal');
+      console.log(newVal);
+    },
+  },
   methods: {
 
   },
