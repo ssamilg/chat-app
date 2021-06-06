@@ -20,7 +20,7 @@ export default {
   computed: {
     ...mapGetters(['user']),
     isSentByMe() {
-      return this.message.messageFrom === this.user.username;
+      return this.message.messageFrom === this.user._id;
     },
     isSequel() {
       return this.prevMessage.messageFrom === this.message.messageFrom;
@@ -80,7 +80,7 @@ export default {
       <v-flex shrink :class="bubbleClass">
         <v-layout v-if="!isSequel || messageDate" :class="isSentByMe ? 'justify-end' : ''">
           <v-flex shrink class="message-sender">
-            {{ message.messageFrom }}
+            {{ message.senderName }}
           </v-flex>
         </v-layout>
 
