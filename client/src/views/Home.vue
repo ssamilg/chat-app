@@ -26,6 +26,7 @@ export default {
       createRoomDialog: false,
       isSidebarOn: true,
       newRoom: {},
+      incomingMessage: {},
     };
   },
   computed: {
@@ -42,7 +43,6 @@ export default {
   },
   mounted() {
     this.welcomeDialog = true;
-    this.scrollToEnd();
 
     if (this.userId) {
       this.joinServer();
@@ -70,25 +70,11 @@ export default {
       });
 
       this.socket.on('getMessage', (data) => {
-        this.messages.push(data);
-        this.scrollToEnd();
+        this.incomingMessage = data;
       });
     },
-    sendMessage() {
-      const data = {
-        messageFrom: this.user.username,
-        messageTo: this.activeChat,
-        targetSocket: this.activeChat,
-        senderSocket: this.user.socket,
-        content: this.message,
-      };
-      this.socket.emit('sendMessage', (data));
-      if (this.offlineUsers.some((user) => user === this.activeChat)
-      || this.onlineUsers.some((user) => user === this.activeChat)) {
-        this.messages.push(data);
-      }
-      this.message = '';
-      this.scrollToEnd();
+    sendMessage(message) {
+      this.socket.emit('sendMessage', message);
     },
     createRoom() {
       this.createRoomDialog = true;
@@ -117,12 +103,10 @@ export default {
       //   // eslint-disable-next-line
       //   this.messages.push({content: `${data.user} joined to
       // ${data.room}`, messageTo: data.room});
-      //   this.scrollToEnd();
       // });
       this.socket.on('roomMessages', (data) => {
         this.messages = data;
       });
-      this.scrollToEnd();
     },
     joinPM(targetUser) {
       this.messages = [];
@@ -143,10 +127,6 @@ export default {
 
         this.setActiveConversation(conversation);
       });
-
-      setTimeout(() => {
-        this.scrollToEnd();
-      }, 100);
     },
     joinGlobal() {
       this.messages = [];
@@ -154,14 +134,7 @@ export default {
       this.socket.emit('joinGlobal');
       this.socket.on('getGlobalMessages', ((data) => {
         this.messages = data;
-        this.scrollToEnd();
       }));
-    },
-    scrollToEnd() {
-      // setTimeout(() => {
-      //   const container = this.$el.querySelector('#chat-flow');
-      //   container.scrollTop = container.scrollHeight;
-      // }, 100);
     },
   },
 };
@@ -185,7 +158,8 @@ export default {
 
           <v-flex xs12 sm9 md9 lg9>
             <chat-conversation
-              :messages="messages"
+              :incoming-message="incomingMessage"
+              @sendNewMessage="sendMessage"
             />
           </v-flex>
         </v-layout>

@@ -8,14 +8,15 @@ export default {
     MessageBubble,
   },
   props: {
-    messages: {
-      type: Array,
+    incomingMessage: {
+      type: Object,
       required: true,
     },
   },
   data() {
     return {
       newMessage: '',
+      chatMessages: [],
     };
   },
   computed: {
@@ -23,12 +24,36 @@ export default {
   },
   watch: {
     activeConversation(newVal) {
-      console.log('newVal');
-      console.log(newVal);
+      this.chatMessages = newVal.messages;
+      this.scrollToEnd();
+    },
+    incomingMessage(newVal) {
+      this.chatMessages.push(newVal);
+      this.scrollToEnd();
     },
   },
   methods: {
+    sendMessage() {
+      const messageData = {
+        messageFrom: this.user.username,
+        messageTo: this.activeChat.username,
+        targetSocket: this.activeChat.socket,
+        senderSocket: this.user.socket,
+        content: this.newMessage,
+        dateSend: new Date(),
+      };
 
+      this.$emit('sendNewMessage', messageData);
+      this.chatMessages.push(messageData);
+      this.newMessage = '';
+      this.scrollToEnd();
+    },
+    scrollToEnd() {
+      setTimeout(() => {
+        const container = this.$el.querySelector('.conversation-content');
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    },
   },
 };
 </script>
@@ -49,14 +74,14 @@ export default {
     <v-layout class="conversation-content">
       <v-flex grow>
         <div
-          v-for="(message, index) in activeConversation.messages"
+          v-for="(message, index) in chatMessages"
           :key="message.id"
         >
           <message-bubble
             :message="message"
-            :prev-message="index === 0 ? {} : activeConversation.messages[index - 1]"
-            :next-message="index === activeConversation.messages.length - 1
-            ? {} : activeConversation.messages[index + 1]"
+            :prev-message="index === 0 ? {} : chatMessages[index - 1]"
+            :next-message="index === chatMessages.length - 1
+            ? {} : chatMessages[index + 1]"
           />
         </div>
       </v-flex>
@@ -72,11 +97,12 @@ export default {
           hide-details
           no-resize
           outlined
+          @keyup.enter.prevent="sendMessage"
         />
       </v-flex>
 
       <v-flex md1 mr-2>
-        <v-btn icon class="send-btn mx-2" color="#673AB7">
+        <v-btn icon class="send-btn mx-2" color="#673AB7" @click="sendMessage">
           <v-icon>mdi-send</v-icon>
         </v-btn>
       </v-flex>
