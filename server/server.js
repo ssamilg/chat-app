@@ -130,13 +130,10 @@ io.on("connection", async (socket) => {
 
   // Private Chat
   socket.on("joinPM", async (params) => {
-    console.log('Joined to pm');
     const pmMessages = await MessageModel.find({
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
     
-    console.log(pmMessages.length);
-    console.log(params);
     io.to(params.userSocket).emit("pmMessages", pmMessages);
   });
 
@@ -144,6 +141,7 @@ io.on("connection", async (socket) => {
     const globalMessages = await MessageModel.find({ messageTo: 'global' });
     io.emit('getGlobalMessages', globalMessages);
   });
+
   //Send message
   socket.on("sendMessage", async (data) => {
     const message = new MessageModel({
@@ -152,6 +150,7 @@ io.on("connection", async (socket) => {
       content: data.content,
       dateSend: Date.now(),      
     });
+
     message.save((err, result) => {
       if (err) throw err;
       
