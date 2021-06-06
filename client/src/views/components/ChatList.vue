@@ -104,6 +104,9 @@ export default {
   .list-header {
     background-color: #FB8C00;
     color: white !important;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   .selected-item {
