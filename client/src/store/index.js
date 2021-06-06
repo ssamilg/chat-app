@@ -10,7 +10,7 @@ export default new Vuex.Store({
       username: '',
     },
     activeChat: {},
-    activeChatList: -1,
+    activeChatList: 2,
     activeConversation: {},
   },
   getters: {
@@ -25,6 +25,25 @@ export default new Vuex.Store({
     },
     activeConversation(state) {
       return state.activeConversation;
+    },
+    availableChatLists() {
+      return [
+        // {
+        //   id: 0,
+        //   icon: 'language',
+        //   title: 'Global',
+        // },
+        {
+          id: 1,
+          icon: 'mdi-account-group',
+          title: 'Rooms',
+        },
+        {
+          id: 2,
+          icon: 'mdi-account',
+          title: 'Private Chats',
+        },
+      ];
     },
   },
   mutations: {

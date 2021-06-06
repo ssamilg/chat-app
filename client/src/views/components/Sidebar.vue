@@ -7,28 +7,11 @@ export default {
     return {
       isSidebarOn: true,
       mini: true,
-      selectedItemId: -1,
-      listItems: [
-        // {
-        //   id: 0,
-        //   icon: 'language',
-        //   title: 'Global',
-        // },
-        {
-          id: 1,
-          icon: 'mdi-account-group',
-          title: 'Rooms',
-        },
-        {
-          id: 2,
-          icon: 'person',
-          title: 'Private Chats',
-        },
-      ],
+      selectedItemId: 2,
     };
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'availableChatLists']),
   },
   methods: {
     ...mapActions(['setActiveChatList']),
@@ -72,6 +55,7 @@ export default {
         </v-list-item>
 
         <template v-if="!mini">
+          <!-- TODO User account infos should be displayed -->
           <v-list-item class="my-3">
             <v-list-item-content>
               <v-icon size="72">
@@ -88,7 +72,7 @@ export default {
         </template>
 
         <v-list-item
-          v-for="item in listItems"
+          v-for="item in availableChatLists"
           :key="item.id"
           :class="selectedItemId === item.id? 'selected-drawer-item': ''"
           class="drawer-item"
