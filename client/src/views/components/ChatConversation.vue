@@ -46,7 +46,7 @@ export default {
       };
 
       this.$emit('sendNewMessage', messageData);
-      // this.chatMessages.push(messageData);
+      this.chatMessages.push(messageData);
       this.newMessage = '';
       this.scrollToEnd();
     },
