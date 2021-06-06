@@ -25,6 +25,7 @@ export default {
   watch: {
     activeConversation(newVal) {
       this.chatMessages = newVal.messages;
+      console.log(newVal.messages);
       this.scrollToEnd();
     },
     incomingMessage(newVal) {
@@ -35,8 +36,9 @@ export default {
   methods: {
     sendMessage() {
       const messageData = {
-        messageFrom: this.user.username,
-        messageTo: this.activeChat.username,
+        senderName: this.user.username,
+        messageFrom: this.user._id,
+        messageTo: this.activeChat._id,
         targetSocket: this.activeChat.socket,
         senderSocket: this.user.socket,
         content: this.newMessage,
@@ -44,7 +46,7 @@ export default {
       };
 
       this.$emit('sendNewMessage', messageData);
-      this.chatMessages.push(messageData);
+      // this.chatMessages.push(messageData);
       this.newMessage = '';
       this.scrollToEnd();
     },
