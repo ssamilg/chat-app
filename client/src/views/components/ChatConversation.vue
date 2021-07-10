@@ -61,55 +61,60 @@ export default {
 </script>
 
 <template>
-  <div id="chat-conversation">
-    <v-layout align-center class="conversation-header">
-      <v-flex shrink class="mr-2">
-        <v-icon color="#673AB7">mdi-chat</v-icon>
-      </v-flex>
+  <v-layout column id="chat-conversation">
+    <v-flex shrink>
+      <v-layout align-center class="conversation-header">
+        <v-flex shrink class="mr-2">
+          <v-icon color="#673AB7">mdi-chat</v-icon>
+        </v-flex>
 
-      <v-flex>
-        {{ activeConversation.title }}
-      </v-flex>
-    </v-layout>
+        <v-flex>
+          {{ activeConversation.title }}
+        </v-flex>
+      </v-layout>
+    </v-flex>
 
+    <v-flex class="conversation-content">
+      <v-layout>
+        <v-flex grow>
+          <div
+            v-for="(message, index) in chatMessages"
+            :key="message.id"
+          >
+            <message-bubble
+              :message="message"
+              :prev-message="index === 0 ? {} : chatMessages[index - 1]"
+              :next-message="index === chatMessages.length - 1
+              ? {} : chatMessages[index + 1]"
+            />
+          </div>
+        </v-flex>
+      </v-layout>
+    </v-flex>
 
-    <v-layout class="conversation-content">
-      <v-flex grow>
-        <div
-          v-for="(message, index) in chatMessages"
-          :key="message.id"
-        >
-          <message-bubble
-            :message="message"
-            :prev-message="index === 0 ? {} : chatMessages[index - 1]"
-            :next-message="index === chatMessages.length - 1
-            ? {} : chatMessages[index + 1]"
+    <v-flex shrink justify-self-end>
+      <v-layout class="conversation-actions">
+        <v-flex md11 class="fill-height">
+          <v-textarea
+            v-model="newMessage"
+            label="Type your message..."
+            rows="2"
+            color="#673AB7"
+            hide-details
+            no-resize
+            outlined
+            @keyup.enter.prevent="sendMessage"
           />
-        </div>
-      </v-flex>
-    </v-layout>
+        </v-flex>
 
-    <v-layout class="conversation-actions">
-      <v-flex md11 class="fill-height">
-        <v-textarea
-          v-model="newMessage"
-          label="Type your message..."
-          rows="2"
-          color="#673AB7"
-          hide-details
-          no-resize
-          outlined
-          @keyup.enter.prevent="sendMessage"
-        />
-      </v-flex>
-
-      <v-flex md1 mr-2>
-        <v-btn icon class="send-btn mx-2" color="#673AB7" @click="sendMessage">
-          <v-icon>mdi-send</v-icon>
-        </v-btn>
-      </v-flex>
-    </v-layout>
-  </div>
+        <v-flex md1 mr-2>
+          <v-btn icon class="send-btn mx-2" color="#673AB7" @click="sendMessage">
+            <v-icon>mdi-send</v-icon>
+          </v-btn>
+        </v-flex>
+      </v-layout>
+    </v-flex>
+  </v-layout>
 </template>
 
 <style lang="scss">
@@ -129,13 +134,11 @@ export default {
 
     &-content {
       margin-bottom: 8px;
-      height: 80%;
       overflow: auto;
       padding: 8px 8px;
     }
 
     &-actions {
-      height: 12%;
       padding: 8px 8px;
 
       .v-input {
