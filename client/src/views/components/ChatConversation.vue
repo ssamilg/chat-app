@@ -119,9 +119,6 @@ export default {
 
 <style lang="scss">
 #chat-conversation {
-  height: 100%;
-  background-color: #F4F0F9;
-
   .conversation {
     &-header {
       background-color: #D1C4E9;
