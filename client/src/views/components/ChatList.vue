@@ -16,7 +16,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['activeChatList']),
+    ...mapGetters(['activeChatList', 'user']),
     listHeader() {
       const header = {
         title: 'Choose one to chat !',
@@ -36,13 +36,13 @@ export default {
   },
   watch: {
     users() {
-      this.selectedList = this.users;
+      this.selectedList = this.getUserList();
     },
     activeChatList() {
       if (this.activeChatList === 1) {
         this.selectedList = this.rooms;
       } else if (this.activeChatList === 2) {
-        this.selectedList = this.users;
+        this.selectedList = this.getUserList();
       } else {
         this.selectedList = [];
       }
@@ -53,6 +53,9 @@ export default {
     selectChat(item) {
       this.setActiveChat(item);
       this.selectedChat = item._id;
+    },
+    getUserList() {
+      return this.users.filter((u) => u._id !== this.user._id);
     },
   },
 };
