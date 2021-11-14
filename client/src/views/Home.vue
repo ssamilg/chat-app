@@ -58,7 +58,6 @@ export default {
         this.users = data.users;
         this.rooms = data.rooms;
 
-        // TODO consult this to ibo
         const user = this.users.find((u) => u._id === this.userId);
         user.socket = data.socket;
 
