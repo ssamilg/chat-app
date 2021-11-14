@@ -31,7 +31,6 @@ const UserModel = require("./models/UserModel");
 const RoomModel = require("./models/RoomModel");
 // const { users } = require("./controllers/UserController");
 
-let onlineUsers = [];
 let messages = [];
 let users = [];
 
@@ -57,9 +56,6 @@ const fetchMessages = async (messageFrom, messageTo) => {
       { messageTo: messageFrom, messageFrom: messageTo },
     ],
   });
-
-  console.log('messages');
-  console.log(messages);
 };
 
 io.on("connection", async (socket) => {
@@ -145,13 +141,12 @@ io.on("connection", async (socket) => {
     const pmMessages = await MessageModel.find({
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
-    
-    console.log('params');      
-    console.log(params);      
+   
     fetchMessages(params.messageFrom, params.messageTo);
     io.to(params.userSocket).emit("pmMessages", pmMessages);
   });
 
+  // Join Global
   socket.on('joinGlobal', async () => {
     const globalMessages = await MessageModel.find({ messageTo: 'global' });
     io.emit('getGlobalMessages', globalMessages);
@@ -176,13 +171,13 @@ io.on("connection", async (socket) => {
       socketId = socketId.socket;
 
       io.to(socketId).emit("getMessage", message);
-      console.log('pm');      
+      console.log('pm sent');
+      console.log({message});
     } else {
       const room = await RoomModel.findOne({ title: data.messageTo });
 
       if (room) {
         io.to(room._id).emit('getMessage', message);
-        console.log('room');      
       } else {
         io.emit('getMessage', message);
       }
@@ -193,6 +188,12 @@ io.on("connection", async (socket) => {
     //   //Logged-in users recieve message
     //   socket.broadcast.emit("getMessage", message);
     // }
+  });
+
+  socket.on("messageReceived", async (data) => {
+    console.log(data);
+    await MessageModel.updateOne({_id: data.messageId}, { $set: { dateRead: data.dateRead, dateReceived: data.dateReceived }});
+
   });
 });
 

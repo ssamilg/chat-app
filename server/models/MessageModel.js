@@ -21,6 +21,14 @@ const MessageSchema = mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  dateReceived: {
+    type: Date,
+    default: null,
+  },
+  dateRead: {
+    type: Date,
+    default: null,
+  },
 });
 
 module.exports = mongoose.model('message', MessageSchema);

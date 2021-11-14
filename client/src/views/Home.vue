@@ -72,7 +72,16 @@ export default {
       });
 
       this.socket.on('getMessage', (data) => {
+        console.log('pm received');
         this.incomingMessage = data;
+
+        const readData = {
+          messageId: data._id,
+          dateRead: null,
+          dateReceived: new Date(),
+        };
+
+        this.socket.emit('messageReceived', readData);
       });
     },
     sendMessage(message) {
