@@ -40,7 +40,7 @@ export default {
     },
     activeChatList() {
       if (this.activeChatList === 1) {
-        this.selectedList = this.rooms;
+        this.selectedList = [];
       } else if (this.activeChatList === 2) {
         this.selectedList = this.getUserList();
       } else {
@@ -73,28 +73,36 @@ export default {
       </v-layout>
     </v-list-item>
 
-    <v-list-item
-      v-for="item in selectedList"
-      :key="item.id"
-      :class="selectedChat === item._id ? 'selected-item' : ''"
-      @click="selectChat(item)"
-    >
-      <template v-if="activeChatList === 1">
-        {{ item.members.length }}
-      </template>
+    <template v-if="selectedList.length">
+      <v-list-item
+        v-for="item in selectedList"
+        :key="item.id"
+        :class="selectedChat === item._id ? 'selected-item' : ''"
+        @click="selectChat(item)"
+      >
+        <template v-if="activeChatList === 1">
+          {{ item.members.length }}
+        </template>
 
-      <template v-else-if="activeChatList === 2">
-        <v-icon
-          size="15"
-          class="pr-2"
-          :color="item.isOnline ? 'green' : 'gray'"
-        >
-          mdi-circle
-        </v-icon>
-      </template>
+        <template v-else-if="activeChatList === 2">
+          <v-icon
+            size="15"
+            class="pr-2"
+            :color="item.isOnline ? 'green' : 'gray'"
+          >
+            mdi-circle
+          </v-icon>
+        </template>
 
-      {{ item.username }}
-    </v-list-item>
+        {{ item.username }}
+      </v-list-item>
+    </template>
+
+    <template v-else>
+      <v-list-item>
+        Coming Soon...
+      </v-list-item>
+    </template>
   </v-list>
 </template>
 
