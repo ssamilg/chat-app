@@ -95,12 +95,19 @@ export default {
           </v-icon>
         </template>
 
-        {{ item.username }}
+        <v-layout>
+          <v-list-item-title>
+            {{ item.username }}
+          </v-list-item-title>
 
-        <template v-if="item.unreadMessages && item.unreadMessages.length">
-          {{ ' - ' }}
-          {{ item.unreadMessages.length }}
-        </template>
+          <v-list-item-icon v-if="item.unreadMessages && item.unreadMessages.length">
+            <v-badge inline color="red darken-2">
+              <template v-slot:badge>
+                {{ item.unreadMessages.length }}
+              </template>
+            </v-badge>
+          </v-list-item-icon>
+        </v-layout>
       </v-list-item>
     </template>
 
