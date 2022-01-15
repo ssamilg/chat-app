@@ -56,6 +56,8 @@ const fetchMessages = async (messageFrom, messageTo) => {
       { messageTo: messageFrom, messageFrom: messageTo },
     ],
   });
+
+  return messages;
 };
 
 io.on("connection", async (socket) => {
@@ -142,7 +144,7 @@ io.on("connection", async (socket) => {
       $or: [{ messageTo: params.messageTo, messageFrom: params.messageFrom },
              { messageTo: params.messageFrom, messageFrom: params.messageTo }]});
    
-    fetchMessages(params.messageFrom, params.messageTo);
+    // fetchMessages(params.messageFrom, params.messageTo); TODO: Implement this method properly
     io.to(params.userSocket).emit("pmMessages", pmMessages);
   });
 
@@ -171,8 +173,6 @@ io.on("connection", async (socket) => {
       socketId = socketId.socket;
 
       io.to(socketId).emit("getMessage", message);
-      console.log('pm sent');
-      console.log({message});
     } else {
       const room = await RoomModel.findOne({ title: data.messageTo });
 
@@ -189,11 +189,9 @@ io.on("connection", async (socket) => {
     //   socket.broadcast.emit("getMessage", message);
     // }
   });
-
-  socket.on("messageReceived", async (data) => {
-    console.log(data);
-    await MessageModel.updateOne({_id: data.messageId}, { $set: { dateRead: data.dateRead, dateReceived: data.dateReceived }});
-
+  
+  socket.on("messageFeedback", async (data) => {
+    await MessageModel.updateOne({_id: data.messageId}, { $set: { dateRead: data.dateRead }});
   });
 });
 
