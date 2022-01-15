@@ -20,8 +20,6 @@ export default {
       message: '',
       messages: [],
       users: [],
-      onlineUsers: [],
-      offlineUsers: [],
       welcomeDialog: false,
       createRoomDialog: false,
       isSidebarOn: true,
@@ -64,24 +62,28 @@ export default {
         this.setUser(user);
         this.socket.emit('newUser', this.user);
       });
+
       this.listen();
     },
     listen() {
       this.socket.on('usersChanged', (users) => {
-        this.users = users;
+        this.users = users.map((user) => ({ ...user, unreadMessages: [] }));
       });
 
       this.socket.on('getMessage', (data) => {
-        console.log('pm received');
-        this.incomingMessage = data;
+        if (data.messageTo === this.activeChat._id) {
+          this.incomingMessage = data;
 
-        const readData = {
-          messageId: data._id,
-          dateRead: null,
-          dateReceived: new Date(),
-        };
+          const readData = {
+            messageId: data._id,
+            dateRead: new Date(),
+          };
 
-        this.socket.emit('messageReceived', readData);
+          this.socket.emit('messageFeedback', readData);
+        } else {
+          const userIndex = this.users.findIndex((user) => user._id === data.messageFrom);
+          this.users[userIndex].unreadMessages.push(data);
+        }
       });
     },
     sendMessage(message) {

@@ -51,6 +51,7 @@ export default {
   methods: {
     ...mapActions(['setActiveChat']),
     selectChat(item) {
+      item.unreadMessages.splice(0);
       this.setActiveChat(item);
       this.selectedChat = item._id;
     },
@@ -95,6 +96,11 @@ export default {
         </template>
 
         {{ item.username }}
+
+        <template v-if="item.unreadMessages && item.unreadMessages.length">
+          {{ ' - ' }}
+          {{ item.unreadMessages.length }}
+        </template>
       </v-list-item>
     </template>
 
