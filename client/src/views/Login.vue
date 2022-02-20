@@ -9,8 +9,6 @@ export default {
       rules: { required: (value) => !!value || 'Required.' },
     };
   },
-  computed: {
-  },
   methods: {
     ...mapActions(['setUser', 'login']),
     enter() {

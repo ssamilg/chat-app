@@ -2,9 +2,11 @@
 
 export default {
   name: 'App',
-  components: {
+  created() {
+    this.userId = localStorage.getItem('chat-user-id');
+    if (!this.userId) this.$router.push('/Login');
+    else this.$router.push('/');
   },
-
 };
 </script>
 
