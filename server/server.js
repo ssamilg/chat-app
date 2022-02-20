@@ -88,9 +88,9 @@ io.on("connection", async (socket) => {
   //User Disconnect
   socket.on("disconnect", async (err) => {
     const user = await UserModel.findOne({socket: socket.id});
-    await UserModel.updateOne({_id: user._id}, { $set: {socket: null, isOnline: false }});
-
+    
     if(user) {
+      await UserModel.updateOne({_id: user._id}, { $set: {socket: null, isOnline: false }});
       console.log(`${user.username} disconnected.`);
 
       toggleUserIsOnline(user);
