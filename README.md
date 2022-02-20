@@ -6,8 +6,8 @@
 ChatApp is an real-time chat application that runs on _**node.js**_, and uses _**express.js**_ api server and communicates with _**socket.io**_ websockets.
 ChatApp use _**Vue.js**_ for interface with component library called _**Vuetify**_.  
 
-For live demo v1.0
-http://sauchat.surge.sh/
+For live demo v1.1
+https://chatapp-v2.surge.sh/
 
 ## SERVER
 ### Node.js
