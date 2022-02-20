@@ -16,7 +16,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['activeChatList']),
+    ...mapGetters(['activeChatList', 'user']),
     listHeader() {
       const header = {
         title: 'Choose one to chat !',
@@ -36,13 +36,13 @@ export default {
   },
   watch: {
     users() {
-      this.selectedList = this.users;
+      this.selectedList = this.getUserList();
     },
     activeChatList() {
       if (this.activeChatList === 1) {
-        this.selectedList = this.rooms;
+        this.selectedList = [];
       } else if (this.activeChatList === 2) {
-        this.selectedList = this.users;
+        this.selectedList = this.getUserList();
       } else {
         this.selectedList = [];
       }
@@ -51,8 +51,12 @@ export default {
   methods: {
     ...mapActions(['setActiveChat']),
     selectChat(item) {
+      item.unreadMessages.splice(0);
       this.setActiveChat(item);
       this.selectedChat = item._id;
+    },
+    getUserList() {
+      return this.users.filter((u) => u._id !== this.user._id);
     },
   },
 };
@@ -70,28 +74,48 @@ export default {
       </v-layout>
     </v-list-item>
 
-    <v-list-item
-      v-for="item in selectedList"
-      :key="item.id"
-      :class="selectedChat === item._id ? 'selected-item' : ''"
-      @click="selectChat(item)"
-    >
-      <template v-if="activeChatList === 1">
-        {{ item.members.length }}
-      </template>
+    <template v-if="selectedList.length">
+      <v-list-item
+        v-for="item in selectedList"
+        :key="item.id"
+        :class="selectedChat === item._id ? 'selected-item' : ''"
+        @click="selectChat(item)"
+      >
+        <template v-if="activeChatList === 1">
+          {{ item.members.length }}
+        </template>
 
-      <template v-else-if="activeChatList === 2">
-        <v-icon
-          size="15"
-          class="pr-2"
-          :color="item.isOnline ? 'green' : 'gray'"
-        >
-          mdi-circle
-        </v-icon>
-      </template>
+        <template v-else-if="activeChatList === 2">
+          <v-icon
+            size="15"
+            class="pr-2"
+            :color="item.isOnline ? 'green' : 'gray'"
+          >
+            mdi-circle
+          </v-icon>
+        </template>
 
-      {{ item.username }}
-    </v-list-item>
+        <v-layout>
+          <v-list-item-title>
+            {{ item.username }}
+          </v-list-item-title>
+
+          <v-list-item-icon v-if="item.unreadMessages && item.unreadMessages.length">
+            <v-badge inline color="red darken-2">
+              <template v-slot:badge>
+                {{ item.unreadMessages.length }}
+              </template>
+            </v-badge>
+          </v-list-item-icon>
+        </v-layout>
+      </v-list-item>
+    </template>
+
+    <template v-else>
+      <v-list-item>
+        Coming Soon...
+      </v-list-item>
+    </template>
   </v-list>
 </template>
 

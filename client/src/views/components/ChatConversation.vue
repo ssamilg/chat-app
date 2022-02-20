@@ -25,7 +25,6 @@ export default {
   watch: {
     activeConversation(newVal) {
       this.chatMessages = newVal.messages;
-      console.log(newVal.messages);
       this.scrollToEnd();
     },
     incomingMessage(newVal) {

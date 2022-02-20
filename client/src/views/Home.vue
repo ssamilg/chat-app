@@ -20,8 +20,6 @@ export default {
       message: '',
       messages: [],
       users: [],
-      onlineUsers: [],
-      offlineUsers: [],
       welcomeDialog: false,
       createRoomDialog: false,
       isSidebarOn: true,
@@ -58,22 +56,34 @@ export default {
         this.users = data.users;
         this.rooms = data.rooms;
 
-        // TODO consult this to ibo
         const user = this.users.find((u) => u._id === this.userId);
         user.socket = data.socket;
 
         this.setUser(user);
         this.socket.emit('newUser', this.user);
       });
+
       this.listen();
     },
     listen() {
       this.socket.on('usersChanged', (users) => {
-        this.users = users;
+        this.users = users.map((user) => ({ ...user, unreadMessages: [] }));
       });
 
       this.socket.on('getMessage', (data) => {
-        this.incomingMessage = data;
+        if (data.messageFrom === this.activeChat._id) {
+          this.incomingMessage = data;
+
+          const readData = {
+            messageId: data._id,
+            dateRead: new Date(),
+          };
+
+          this.socket.emit('messageFeedback', readData);
+        } else {
+          const userIndex = this.users.findIndex((user) => user._id === data.messageFrom);
+          this.users[userIndex].unreadMessages.push(data);
+        }
       });
     },
     sendMessage(message) {
