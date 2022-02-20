@@ -71,7 +71,7 @@ export default {
       });
 
       this.socket.on('getMessage', (data) => {
-        if (data.messageTo === this.activeChat._id) {
+        if (data.messageFrom === this.activeChat._id) {
           this.incomingMessage = data;
 
           const readData = {
