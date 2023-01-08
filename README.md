@@ -1,5 +1,8 @@
 # chat-app
 ### [ARCHIVED PROJECT]
+
+### This app is not working for the time being since the server was deployed to heroku.
+
 <b> I have decided to archive this project and not continuing to development due to old versions of libraries and security issues. </b>
 <hr>
 
